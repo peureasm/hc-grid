@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HighColor Grid</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        background: #f7f8fb;
+        color: #18202f;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-size: 24px;
+      }
+
+      hc-grid {
+        --hc-grid-row-hover-bg: #e8f2ff;
+        --hc-grid-selected-bg: #fff7ed;
+      }
+    </style>
+    <script type="module" src="/src/index.ts"></script>
+  </head>
+  <body>
+    <main>
+      <h1>HighColor Grid Demo</h1>
+      <hc-grid id="userGrid" empty-text="데이터가 없습니다"></hc-grid>
+    </main>
+
+    <script>
+      const grid = document.querySelector('#userGrid');
+
+      grid.checkboxSelection = true;
+      grid.pagination = true;
+      grid.pageSize = 8;
+      grid.virtualScroll = false;
+
+      grid.columns = [
+        { field: 'name', header: '이름', width: 120, sortable: true, resizable: true },
+        { field: 'button', header: 'Button', width: 92, component: 'button', buttonLabel: 'Open' },
+        { field: 'checked', header: 'Checkbox', width: 96, align: 'center', component: 'checkbox' },
+        {
+          field: 'menu',
+          header: 'DropdownMenu',
+          width: 150,
+          component: 'dropdown-menu',
+          dropdownLabel: 'Actions',
+          options: [
+            { label: 'Edit', value: 'edit' },
+            { label: 'Archive', value: 'archive' },
+            { label: 'Delete', value: 'delete' }
+          ]
+        },
+        { field: 'memo', header: 'Input', width: 160, component: 'input' },
+        {
+          field: 'role',
+          header: 'Select',
+          width: 132,
+          component: 'select',
+          options: [
+            { label: 'Admin', value: 'admin' },
+            { label: 'User', value: 'user' },
+            { label: 'Guest', value: 'guest' }
+          ]
+        },
+        {
+          field: 'tags',
+          header: 'MultiSelect',
+          width: 170,
+          component: 'multi-select',
+          options: [
+            { label: 'Design', value: 'design' },
+            { label: 'Frontend', value: 'frontend' },
+            { label: 'QA', value: 'qa' }
+          ]
+        },
+        { field: 'status', header: 'Badge', width: 110, component: 'badge' }
+      ];
+
+      grid.rows = Array.from({ length: 24 }, (_, index) => ({
+        name: `사용자 ${index + 1}`,
+        button: 'Open',
+        checked: index % 2 === 0,
+        menu: 'Actions',
+        memo: `메모 ${index + 1}`,
+        role: index % 3 === 0 ? 'admin' : index % 3 === 1 ? 'user' : 'guest',
+        tags: index % 2 === 0 ? ['design', 'frontend'] : ['qa'],
+        status: index % 3 === 0 ? 'active' : index % 3 === 1 ? 'pending' : 'blocked'
+      }));
+
+      grid.addEventListener('row-click', (event) => {
+        console.log('row-click', event.detail);
+      });
+
+      grid.addEventListener('selection-change', (event) => {
+        console.log('selection-change', event.detail);
+      });
+
+      grid.addEventListener('cell-edit', (event) => {
+        console.log('cell-edit', event.detail);
+      });
+
+      grid.addEventListener('cell-action', (event) => {
+        console.log('cell-action', event.detail);
+      });
+    </script>
+  </body>
+</html>

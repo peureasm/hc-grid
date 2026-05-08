@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HighColor Grid Vanilla Example</title>
+    <script type="module" src="../dist/hc-grid.es.js"></script>
+  </head>
+  <body>
+    <hc-grid id="userGrid" height="360px"></hc-grid>
+
+    <script>
+      const grid = document.querySelector('#userGrid');
+
+      grid.checkboxSelection = true;
+      grid.pagination = true;
+      grid.pageSize = 2;
+
+      grid.setColumns([
+        { field: 'name', header: '이름', width: 120, sortable: true, resizable: true },
+        { field: 'age', header: '나이', width: 80, align: 'center', formatter: (value) => `${value}세` },
+        { field: 'email', header: '이메일', width: 240, minWidth: 180, editable: true }
+      ]);
+
+      grid.setRows([
+        { name: '홍길동', age: 32, email: 'hong@test.com' },
+        { name: '김철수', age: 41, email: 'kim@test.com' },
+        { name: '이영희', age: 29, email: 'lee@test.com' }
+      ]);
+
+      grid.addEventListener('sort-change', (event) => {
+        console.log(event.detail);
+      });
+
+      grid.addEventListener('selection-change', (event) => {
+        console.log(event.detail);
+      });
+
+      grid.addEventListener('cell-edit', (event) => {
+        console.log(event.detail);
+      });
+    </script>
+  </body>
+</html>

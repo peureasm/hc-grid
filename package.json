@@ -1,0 +1,37 @@
+{
+  "name": "@highcolor/grid",
+  "version": "0.1.0",
+  "description": "Framework agnostic grid component based on Web Components",
+  "type": "module",
+  "main": "dist/hc-grid.umd.js",
+  "module": "dist/hc-grid.es.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/hc-grid.es.js",
+      "require": "./dist/hc-grid.umd.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "grid",
+    "highcolor-grid",
+    "data-grid",
+    "web-component",
+    "custom-element"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "6.4.2"
+  }
+}
