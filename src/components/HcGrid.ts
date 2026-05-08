@@ -3,6 +3,7 @@ import type {
   GridCellActionDetail,
   GridCellClickDetail,
   GridCellEditDetail,
+  GridCardRenderer,
   GridColumn,
   GridExportOptions,
   GridOption,
@@ -13,13 +14,15 @@ import type {
   GridSelectionChangeDetail,
   GridSortChangeDetail,
   GridSortDirection,
-  GridSortState
+  GridSortState,
+  GridViewMode
 } from '../types/grid';
 import { escapeHtml } from '../utils/escapeHtml';
 
 const DEFAULT_EMPTY_TEXT = 'No data';
 const CHECKBOX_COLUMN_WIDTH = 44;
 const DEFAULT_ROW_HEIGHT = 40;
+const DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
 
 type GridEditingCell = {
   row: GridRow;
@@ -64,8 +67,13 @@ export class HcGrid extends HTMLElement {
   private _pagination = false;
   private _page = 1;
   private _pageSize = 20;
+  private _pageSizeOptions = [...DEFAULT_PAGE_SIZE_OPTIONS];
   private _virtualScroll = false;
   private _rowHeight = DEFAULT_ROW_HEIGHT;
+  private _viewMode: GridViewMode = 'table';
+  private _cardTitleField: string | null = null;
+  private _cardSubtitleField: string | null = null;
+  private _cardRenderer: GridCardRenderer | null = null;
   private _editingCell: GridEditingCell | null = null;
   private _resizeState: GridResizeState | null = null;
   private _popup: GridPopupState | null = null;
@@ -108,8 +116,13 @@ export class HcGrid extends HTMLElement {
     this.upgradeProperty('pagination');
     this.upgradeProperty('page');
     this.upgradeProperty('pageSize');
+    this.upgradeProperty('pageSizeOptions');
     this.upgradeProperty('virtualScroll');
     this.upgradeProperty('rowHeight');
+    this.upgradeProperty('viewMode');
+    this.upgradeProperty('cardTitleField');
+    this.upgradeProperty('cardSubtitleField');
+    this.upgradeProperty('cardRenderer');
     this._isConnected = true;
     this.syncAttributes();
     this.render();
@@ -201,6 +214,25 @@ export class HcGrid extends HTMLElement {
     return this._pageSize;
   }
 
+  set pageSizeOptions(value: number[] | null | undefined) {
+    const options = Array.isArray(value)
+      ? value
+          .map((option) => this.normalizePositiveNumber(option))
+          .filter((option): option is number => option !== null)
+      : [];
+    this._pageSizeOptions = options.length > 0 ? Array.from(new Set(options)).sort((a, b) => a - b) : [...DEFAULT_PAGE_SIZE_OPTIONS];
+
+    if (!this._pageSizeOptions.includes(this._pageSize)) {
+      this._pageSizeOptions = [...this._pageSizeOptions, this._pageSize].sort((a, b) => a - b);
+    }
+
+    this.renderIfReady();
+  }
+
+  get pageSizeOptions(): number[] {
+    return [...this._pageSizeOptions];
+  }
+
   set virtualScroll(value: boolean | null | undefined) {
     this._virtualScroll = Boolean(value);
     this.renderIfReady();
@@ -217,6 +249,43 @@ export class HcGrid extends HTMLElement {
 
   get rowHeight(): number {
     return this._rowHeight;
+  }
+
+  set viewMode(value: GridViewMode | null | undefined) {
+    this._viewMode = value === 'card' ? 'card' : 'table';
+    this.closePopup();
+    this.renderIfReady();
+  }
+
+  get viewMode(): GridViewMode {
+    return this._viewMode;
+  }
+
+  set cardTitleField(value: string | null | undefined) {
+    this._cardTitleField = value || null;
+    this.renderIfReady();
+  }
+
+  get cardTitleField(): string | null {
+    return this._cardTitleField;
+  }
+
+  set cardSubtitleField(value: string | null | undefined) {
+    this._cardSubtitleField = value || null;
+    this.renderIfReady();
+  }
+
+  get cardSubtitleField(): string | null {
+    return this._cardSubtitleField;
+  }
+
+  set cardRenderer(value: GridCardRenderer | null | undefined) {
+    this._cardRenderer = typeof value === 'function' ? value : null;
+    this.renderIfReady();
+  }
+
+  get cardRenderer(): GridCardRenderer | null {
+    return this._cardRenderer;
   }
 
   setData(rows: GridRow[]): void {
@@ -314,7 +383,12 @@ export class HcGrid extends HTMLElement {
   setPageSize(pageSize: number): void {
     const nextPageSize = this.normalizePositiveNumber(pageSize) || this._pageSize;
 
+    if (!this._pageSizeOptions.includes(nextPageSize)) {
+      this._pageSizeOptions = [...this._pageSizeOptions, nextPageSize].sort((a, b) => a - b);
+    }
+
     if (nextPageSize === this._pageSize) {
+      this.renderIfReady();
       return;
     }
 
@@ -340,6 +414,7 @@ export class HcGrid extends HTMLElement {
     return {
       page: this._page,
       pageSize: this._pageSize,
+      pageSizeOptions: this.pageSizeOptions,
       totalRows,
       totalPages
     };
@@ -407,6 +482,8 @@ export class HcGrid extends HTMLElement {
     const overlay = this.getOverlay();
     const templateColumns = this.getTemplateColumns();
 
+    container.classList.toggle('hc-grid--card', this._viewMode === 'card');
+    header.hidden = this._viewMode === 'card';
     container.style.setProperty('--hc-grid-row-height', `${this._rowHeight}px`);
     container.setAttribute('aria-rowcount', String(this.getCurrentRows().length));
     container.setAttribute('aria-colcount', String(this._columns.length + (this._checkboxSelection ? 1 : 0)));
@@ -429,28 +506,76 @@ export class HcGrid extends HTMLElement {
     const pageInfo = this.getPageInfo();
     const previousButton = document.createElement('button');
     const nextButton = document.createElement('button');
-    const status = document.createElement('span');
+    const pageSizeLabel = document.createElement('label');
+    const pageSizeSelect = document.createElement('select');
+    const pageList = document.createElement('div');
 
     previousButton.type = 'button';
-    previousButton.className = 'hc-grid__pager-button';
-    previousButton.textContent = 'Previous';
+    previousButton.className = 'hc-grid__pager-arrow';
+    previousButton.textContent = '‹';
+    previousButton.setAttribute('aria-label', 'Previous page');
     previousButton.disabled = pageInfo.page <= 1;
     previousButton.addEventListener('click', () => {
       this.previousPage();
     });
 
     nextButton.type = 'button';
-    nextButton.className = 'hc-grid__pager-button';
-    nextButton.textContent = 'Next';
+    nextButton.className = 'hc-grid__pager-arrow';
+    nextButton.textContent = '›';
+    nextButton.setAttribute('aria-label', 'Next page');
     nextButton.disabled = pageInfo.page >= pageInfo.totalPages;
     nextButton.addEventListener('click', () => {
       this.nextPage();
     });
 
-    status.className = 'hc-grid__pager-status';
-    status.textContent = `Page ${pageInfo.page} / ${pageInfo.totalPages} (${pageInfo.totalRows} rows)`;
+    pageSizeLabel.className = 'hc-grid__pager-size';
+    pageSizeSelect.className = 'hc-grid__pager-select';
+    pageSizeSelect.setAttribute('aria-label', 'Rows per page');
+    this.pageSizeOptions.forEach((option) => {
+      const item = document.createElement('option');
+      item.value = String(option);
+      item.textContent = String(option);
+      item.selected = option === this._pageSize;
+      pageSizeSelect.append(item);
+    });
+    pageSizeSelect.addEventListener('change', () => {
+      this.setPageSize(Number(pageSizeSelect.value));
+    });
+    pageSizeLabel.append(document.createTextNode('Rows'), pageSizeSelect);
 
-    pager.append(previousButton, status, nextButton);
+    pageList.className = 'hc-grid__pager-pages';
+    pageList.setAttribute('aria-label', `Pagination, ${pageInfo.totalRows} rows`);
+    pageList.append(previousButton);
+
+    this.getVisiblePageItems(pageInfo.page, pageInfo.totalPages).forEach((item) => {
+      if (item === 'ellipsis') {
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'hc-grid__pager-ellipsis';
+        ellipsis.textContent = '...';
+        ellipsis.setAttribute('aria-hidden', 'true');
+        pageList.append(ellipsis);
+        return;
+      }
+
+      const pageButton = document.createElement('button');
+      pageButton.type = 'button';
+      pageButton.className = 'hc-grid__pager-page';
+      pageButton.textContent = String(item);
+      pageButton.setAttribute('aria-label', `Page ${item}`);
+
+      if (item === pageInfo.page) {
+        pageButton.classList.add('hc-grid__pager-page--active');
+        pageButton.setAttribute('aria-current', 'page');
+      }
+
+      pageButton.addEventListener('click', () => {
+        this.setPage(item);
+      });
+      pageList.append(pageButton);
+    });
+
+    pageList.append(nextButton);
+    pager.append(pageSizeLabel, pageList);
   }
 
   private renderPopup(overlay: HTMLDivElement): void {
@@ -599,11 +724,17 @@ export class HcGrid extends HTMLElement {
 
   private renderBody(body: HTMLDivElement, templateColumns: string): void {
     body.replaceChildren();
+    body.classList.toggle('hc-grid__body--cards', this._viewMode === 'card');
 
     const rows = this.getCurrentRows();
 
     if (rows.length === 0) {
       this.renderEmpty(body);
+      return;
+    }
+
+    if (this._viewMode === 'card') {
+      this.renderCards(body, rows);
       return;
     }
 
@@ -634,6 +765,13 @@ export class HcGrid extends HTMLElement {
     body.append(bottomSpacer);
   }
 
+  private renderCards(body: HTMLDivElement, rows: GridRow[]): void {
+    body.classList.add('hc-grid__body--cards');
+    rows.forEach((row, rowIndex) => {
+      body.append(this.createCard(row, rowIndex));
+    });
+  }
+
   private renderEmpty(body: HTMLDivElement): void {
     const empty = document.createElement('div');
     empty.className = 'hc-grid__empty';
@@ -641,6 +779,177 @@ export class HcGrid extends HTMLElement {
     empty.setAttribute('role', 'status');
     empty.textContent = this._emptyText;
     body.append(empty);
+  }
+
+  private createCard(row: GridRow, rowIndex: number): HTMLDivElement {
+    const isSelected = this._selectedIndex === rowIndex;
+    const card = document.createElement('div');
+    card.className = isSelected ? 'hc-grid__card hc-grid__card--selected' : 'hc-grid__card';
+    card.part.add('row');
+    card.setAttribute('role', 'row');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-rowindex', String(rowIndex + 1));
+    card.setAttribute('aria-selected', String(isSelected));
+
+    card.addEventListener('click', () => {
+      this._selectedIndex = rowIndex;
+      const detail: GridRowClickDetail = { row, index: rowIndex };
+
+      this.dispatchEvent(
+        new CustomEvent<GridRowClickDetail>('row-click', {
+          detail,
+          bubbles: true,
+          composed: true
+        })
+      );
+      this.render();
+    });
+
+    const customCardContent = this.createCustomCardContent(row, rowIndex, isSelected);
+
+    if (customCardContent) {
+      card.append(customCardContent);
+      return card;
+    }
+
+    card.append(this.createCardHeader(row));
+
+    if (this._checkboxSelection) {
+      card.append(this.createCardCheckbox(row));
+    }
+
+    const content = document.createElement('div');
+    content.className = 'hc-grid__card-content';
+
+    this._columns.forEach((column, columnIndex) => {
+      if (column.field === this._cardTitleField || column.field === this._cardSubtitleField) {
+        return;
+      }
+
+      content.append(this.createCardField(row, rowIndex, column, columnIndex));
+    });
+
+    card.append(content);
+    return card;
+  }
+
+  private createCustomCardContent(row: GridRow, rowIndex: number, selected: boolean): Node | null {
+    if (!this._cardRenderer) {
+      return null;
+    }
+
+    const rendered = this._cardRenderer({
+      row,
+      rowIndex,
+      columns: this._columns,
+      selected,
+      checked: this._checkedRows.has(row),
+      toggleChecked: (checked?: boolean) => {
+        this.toggleRowChecked(row, checked ?? !this._checkedRows.has(row));
+      }
+    });
+
+    if (rendered == null) {
+      return null;
+    }
+
+    if (typeof rendered === 'string') {
+      const content = document.createElement('div');
+      content.className = 'hc-grid__card-custom';
+      content.textContent = rendered;
+      return content;
+    }
+
+    return rendered;
+  }
+
+  private createCardHeader(row: GridRow): HTMLDivElement {
+    const header = document.createElement('div');
+    const title = document.createElement('div');
+    const subtitle = document.createElement('div');
+    const titleField = this._cardTitleField || this._columns[0]?.field;
+
+    header.className = 'hc-grid__card-header';
+    title.className = 'hc-grid__card-title';
+    title.textContent = titleField ? String(row[titleField] ?? '') : 'Card';
+    header.append(title);
+
+    if (this._cardSubtitleField) {
+      subtitle.className = 'hc-grid__card-subtitle';
+      subtitle.textContent = String(row[this._cardSubtitleField] ?? '');
+      header.append(subtitle);
+    }
+
+    return header;
+  }
+
+  private createCardCheckbox(row: GridRow): HTMLLabelElement {
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    label.className = 'hc-grid__card-check';
+    checkbox.type = 'checkbox';
+    checkbox.checked = this._checkedRows.has(row);
+    checkbox.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+    checkbox.addEventListener('change', () => {
+      this.toggleRowChecked(row, checkbox.checked);
+    });
+    label.append(checkbox, document.createTextNode('Selected'));
+    return label;
+  }
+
+  private createCardField(
+    row: GridRow,
+    rowIndex: number,
+    column: GridColumn,
+    columnIndex: number
+  ): HTMLDivElement {
+    const field = document.createElement('div');
+    const label = document.createElement('div');
+    const value = document.createElement('div');
+    const rawValue = row[column.field];
+
+    field.className = 'hc-grid__card-field';
+    label.className = 'hc-grid__card-label';
+    label.textContent = column.header;
+    value.className = 'hc-grid__card-value';
+
+    if (column.align === 'center') {
+      value.classList.add('hc-grid__card-value--center');
+    }
+
+    if (column.align === 'right') {
+      value.classList.add('hc-grid__card-value--right');
+    }
+
+    if (column.component) {
+      value.append(this.createCellComponent(row, rowIndex, column, rawValue));
+    } else {
+      value.textContent = String(this.getFormattedValue(row, column, rowIndex) ?? '');
+    }
+
+    value.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const detail: GridCellClickDetail = {
+        row,
+        column,
+        rowIndex,
+        value: rawValue
+      };
+
+      this.dispatchEvent(
+        new CustomEvent<GridCellClickDetail>('cell-click', {
+          detail,
+          bubbles: true,
+          composed: true
+        })
+      );
+    });
+
+    value.setAttribute('aria-colindex', String(columnIndex + 1 + (this._checkboxSelection ? 1 : 0)));
+    field.append(label, value);
+    return field;
   }
 
   private createRow(row: GridRow, rowIndex: number, templateColumns: string): HTMLDivElement {
@@ -1336,6 +1645,22 @@ export class HcGrid extends HTMLElement {
     return Math.max(1, Math.ceil(totalRows / this._pageSize));
   }
 
+  private getVisiblePageItems(currentPage: number, totalPages: number): Array<number | 'ellipsis'> {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
+    }
+
+    if (currentPage >= totalPages - 3) {
+      return [1, 'ellipsis', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [1, 'ellipsis', currentPage - 1, currentPage, currentPage + 1, 'ellipsis', totalPages];
+  }
+
   private getClampedPage(page: number): number {
     const safePage = Math.trunc(this.normalizePositiveNumber(page) || 1);
     return Math.min(Math.max(1, safePage), this.getTotalPages());
@@ -1405,8 +1730,13 @@ export class HcGrid extends HTMLElement {
       | 'pagination'
       | 'page'
       | 'pageSize'
+      | 'pageSizeOptions'
       | 'virtualScroll'
       | 'rowHeight'
+      | 'viewMode'
+      | 'cardTitleField'
+      | 'cardSubtitleField'
+      | 'cardRenderer'
   ): void {
     if (!Object.prototype.hasOwnProperty.call(this, propertyName)) {
       return;

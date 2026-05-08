@@ -1,4 +1,4 @@
-import type { GridColumn, GridExportOptions, GridPageInfo, GridRow, GridSortDirection } from '../types/grid';
+import type { GridCardRenderer, GridColumn, GridExportOptions, GridPageInfo, GridRow, GridSortDirection, GridViewMode } from '../types/grid';
 export declare class HcGrid extends HTMLElement {
     static get observedAttributes(): string[];
     private _columns;
@@ -14,8 +14,13 @@ export declare class HcGrid extends HTMLElement {
     private _pagination;
     private _page;
     private _pageSize;
+    private _pageSizeOptions;
     private _virtualScroll;
     private _rowHeight;
+    private _viewMode;
+    private _cardTitleField;
+    private _cardSubtitleField;
+    private _cardRenderer;
     private _editingCell;
     private _resizeState;
     private _popup;
@@ -39,10 +44,20 @@ export declare class HcGrid extends HTMLElement {
     get page(): number;
     set pageSize(value: number | null | undefined);
     get pageSize(): number;
+    set pageSizeOptions(value: number[] | null | undefined);
+    get pageSizeOptions(): number[];
     set virtualScroll(value: boolean | null | undefined);
     get virtualScroll(): boolean;
     set rowHeight(value: number | null | undefined);
     get rowHeight(): number;
+    set viewMode(value: GridViewMode | null | undefined);
+    get viewMode(): GridViewMode;
+    set cardTitleField(value: string | null | undefined);
+    get cardTitleField(): string | null;
+    set cardSubtitleField(value: string | null | undefined);
+    get cardSubtitleField(): string | null;
+    set cardRenderer(value: GridCardRenderer | null | undefined);
+    get cardRenderer(): GridCardRenderer | null;
     setData(rows: GridRow[]): void;
     setRows(rows: GridRow[]): void;
     setColumns(columns: GridColumn[]): void;
@@ -71,7 +86,13 @@ export declare class HcGrid extends HTMLElement {
     private renderHeader;
     private createHeaderCheckboxCell;
     private renderBody;
+    private renderCards;
     private renderEmpty;
+    private createCard;
+    private createCustomCardContent;
+    private createCardHeader;
+    private createCardCheckbox;
+    private createCardField;
     private createRow;
     private createRowCheckboxCell;
     private createCell;
@@ -109,6 +130,7 @@ export declare class HcGrid extends HTMLElement {
     private getColumnTrack;
     private createResizeHandle;
     private getTotalPages;
+    private getVisiblePageItems;
     private getClampedPage;
     private clampPage;
     private normalizePositiveNumber;

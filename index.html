@@ -28,6 +28,119 @@
         font-size: 24px;
       }
 
+      .demo-toolbar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 14px;
+      }
+
+      .demo-toolbar button {
+        border: 1px solid #cfd6e3;
+        border-radius: 8px;
+        padding: 8px 12px;
+        background: #ffffff;
+        color: #172033;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .demo-toolbar button.active {
+        border-color: #2563eb;
+        background: #2563eb;
+        color: #ffffff;
+      }
+
+      .demo-toolbar button.secondary {
+        border-color: #b9c3d6;
+        background: #f8fafc;
+      }
+
+      .demo-toolbar button.secondary:hover {
+        background: #eef4ff;
+      }
+
+      .demo-file-input {
+        display: none;
+      }
+
+      .demo-status {
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      .custom-card {
+        display: grid;
+        gap: 10px;
+      }
+
+      .custom-card__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .custom-card__title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .custom-card__check {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+      }
+
+      .custom-card__title {
+        font-weight: 700;
+      }
+
+      .custom-card__meta,
+      .custom-card__field span {
+        color: #657085;
+        font-size: 12px;
+      }
+
+      .custom-card__body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .custom-card__field {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .custom-card__actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .custom-card__button {
+        border: 1px solid #cfd6e3;
+        border-radius: 8px;
+        padding: 7px 10px;
+        background: #ffffff;
+        color: #172033;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .custom-card__badge {
+        border-radius: 999px;
+        padding: 4px 8px;
+        background: #dcfce7;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
       hc-grid {
         --hc-grid-row-hover-bg: #e8f2ff;
         --hc-grid-selected-bg: #fff7ed;
@@ -38,16 +151,101 @@
   <body>
     <main>
       <h1>HighColor Grid Demo</h1>
+      <div class="demo-toolbar">
+        <button id="tableModeButton" class="active" type="button">Table View</button>
+        <button id="cardModeButton" type="button">Card View</button>
+        <button id="downloadExcelButton" class="secondary" type="button">Excel Download</button>
+        <button id="uploadExcelButton" class="secondary" type="button">Excel Upload</button>
+        <button id="crudSampleButton" class="secondary" type="button">CRUD Sample</button>
+        <input id="excelUploadInput" class="demo-file-input" type="file" accept=".xls,.html,.csv,text/html,text/csv,application/vnd.ms-excel" />
+        <span id="excelStatus" class="demo-status" aria-live="polite"></span>
+      </div>
       <hc-grid id="userGrid" empty-text="데이터가 없습니다"></hc-grid>
     </main>
 
     <script>
       const grid = document.querySelector('#userGrid');
+      const tableModeButton = document.querySelector('#tableModeButton');
+      const cardModeButton = document.querySelector('#cardModeButton');
+      const downloadExcelButton = document.querySelector('#downloadExcelButton');
+      const uploadExcelButton = document.querySelector('#uploadExcelButton');
+      const crudSampleButton = document.querySelector('#crudSampleButton');
+      const excelUploadInput = document.querySelector('#excelUploadInput');
+      const excelStatus = document.querySelector('#excelStatus');
 
       grid.checkboxSelection = true;
       grid.pagination = true;
-      grid.pageSize = 8;
+      grid.pageSize = 4;
+      grid.pageSizeOptions = [4, 8, 12, 24];
       grid.virtualScroll = false;
+      grid.viewMode = 'table';
+      grid.cardTitleField = 'name';
+      grid.cardSubtitleField = 'memo';
+      grid.cardRenderer = ({ row, checked, toggleChecked }) => {
+        const card = document.createElement('div');
+        const head = document.createElement('div');
+        const titleWrap = document.createElement('div');
+        const titleRow = document.createElement('div');
+        const selectCheck = document.createElement('input');
+        const title = document.createElement('div');
+        const meta = document.createElement('div');
+        const badge = document.createElement('span');
+        const body = document.createElement('div');
+        const actions = document.createElement('div');
+        const button = document.createElement('button');
+
+        card.className = 'custom-card';
+        head.className = 'custom-card__head';
+        titleRow.className = 'custom-card__title-row';
+        selectCheck.className = 'custom-card__check';
+        title.className = 'custom-card__title';
+        meta.className = 'custom-card__meta';
+        badge.className = 'custom-card__badge';
+        body.className = 'custom-card__body';
+        actions.className = 'custom-card__actions';
+        button.className = 'custom-card__button';
+        button.type = 'button';
+        selectCheck.type = 'checkbox';
+        selectCheck.checked = checked;
+
+        title.textContent = String(row.name ?? '');
+        meta.textContent = String(row.memo ?? '');
+        badge.textContent = String(row.status ?? '');
+        selectCheck.addEventListener('click', (event) => {
+          event.stopPropagation();
+        });
+        selectCheck.addEventListener('change', () => {
+          toggleChecked(selectCheck.checked);
+        });
+        button.textContent = 'Open';
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          console.log('custom-card-open', row);
+        });
+
+        [
+          ['Role', row.role],
+          ['Tags', Array.isArray(row.tags) ? row.tags.join(', ') : row.tags],
+          ['Checked', row.checked ? 'Yes' : 'No'],
+          ['Menu', row.menu]
+        ].forEach(([labelText, valueText]) => {
+          const field = document.createElement('div');
+          const label = document.createElement('span');
+          const value = document.createElement('strong');
+          field.className = 'custom-card__field';
+          label.textContent = String(labelText);
+          value.textContent = String(valueText ?? '');
+          field.append(label, value);
+          body.append(field);
+        });
+
+        titleRow.append(selectCheck, title);
+        titleWrap.append(titleRow, meta);
+        head.append(titleWrap, badge);
+        actions.append(button);
+        card.append(head, body, actions);
+        return card;
+      };
 
       grid.columns = [
         { field: 'name', header: '이름', width: 120, sortable: true, resizable: true },
@@ -91,7 +289,7 @@
         { field: 'status', header: 'Badge', width: 110, component: 'badge' }
       ];
 
-      grid.rows = Array.from({ length: 24 }, (_, index) => ({
+      grid.rows = Array.from({ length: 40 }, (_, index) => ({
         name: `사용자 ${index + 1}`,
         button: 'Open',
         checked: index % 2 === 0,
@@ -101,6 +299,104 @@
         tags: index % 2 === 0 ? ['design', 'frontend'] : ['qa'],
         status: index % 3 === 0 ? 'active' : index % 3 === 1 ? 'pending' : 'blocked'
       }));
+
+      const normalizeKey = (value) => String(value ?? '').trim().toLowerCase();
+
+      const parseDelimitedLine = (line, delimiter) => {
+        const cells = [];
+        let cell = '';
+        let quoted = false;
+
+        for (let index = 0; index < line.length; index += 1) {
+          const char = line[index];
+          const nextChar = line[index + 1];
+
+          if (char === '"' && quoted && nextChar === '"') {
+            cell += '"';
+            index += 1;
+          } else if (char === '"') {
+            quoted = !quoted;
+          } else if (char === delimiter && !quoted) {
+            cells.push(cell);
+            cell = '';
+          } else {
+            cell += char;
+          }
+        }
+
+        cells.push(cell);
+        return cells.map((value) => value.trim());
+      };
+
+      const getColumnByHeader = (header, index) => {
+        const key = normalizeKey(header);
+        return (
+          grid.columns.find((column) => normalizeKey(column.header) === key || normalizeKey(column.field) === key) ||
+          grid.columns[index] ||
+          { field: `column_${index + 1}` }
+        );
+      };
+
+      const getOptionValue = (column, rawValue) => {
+        const valueKey = normalizeKey(rawValue);
+        const option = column.options?.find(
+          (item) => normalizeKey(item.label) === valueKey || normalizeKey(item.value) === valueKey
+        );
+        return option ? option.value : rawValue;
+      };
+
+      const normalizeExcelValue = (column, rawValue) => {
+        const value = String(rawValue ?? '').trim();
+
+        if (column.component === 'checkbox') {
+          return ['true', '1', 'yes', 'checked'].includes(normalizeKey(value));
+        }
+
+        if (column.component === 'multi-select') {
+          return value
+            ? value.split(/\s*,\s*/).filter(Boolean).map((item) => getOptionValue(column, item))
+            : [];
+        }
+
+        if (column.component === 'select' || column.component === 'dropdown-menu') {
+          return getOptionValue(column, value);
+        }
+
+        return value;
+      };
+
+      const buildRowsFromMatrix = (matrix) => {
+        const [headers = [], ...bodyRows] = matrix.filter((row) => row.some((cell) => String(cell ?? '').trim()));
+
+        return bodyRows.map((values) => {
+          const row = {};
+          headers.forEach((header, index) => {
+            const column = getColumnByHeader(header, index);
+            row[column.field] = normalizeExcelValue(column, values[index]);
+          });
+          return row;
+        });
+      };
+
+      const parseExcelRows = (text) => {
+        if (/<table[\s>]/i.test(text)) {
+          const document = new DOMParser().parseFromString(text, 'text/html');
+          const table = document.querySelector('table');
+
+          if (!table) {
+            return [];
+          }
+
+          const matrix = Array.from(table.querySelectorAll('tr')).map((row) =>
+            Array.from(row.querySelectorAll('th, td')).map((cell) => cell.textContent ?? '')
+          );
+          return buildRowsFromMatrix(matrix);
+        }
+
+        const lines = text.split(/\r?\n/).filter((line) => line.trim());
+        const delimiter = lines[0]?.includes('\t') ? '\t' : ',';
+        return buildRowsFromMatrix(lines.map((line) => parseDelimitedLine(line, delimiter)));
+      };
 
       grid.addEventListener('row-click', (event) => {
         console.log('row-click', event.detail);
@@ -116,6 +412,49 @@
 
       grid.addEventListener('cell-action', (event) => {
         console.log('cell-action', event.detail);
+      });
+
+      tableModeButton.addEventListener('click', () => {
+        grid.viewMode = 'table';
+        tableModeButton.classList.add('active');
+        cardModeButton.classList.remove('active');
+      });
+
+      cardModeButton.addEventListener('click', () => {
+        grid.viewMode = 'card';
+        cardModeButton.classList.add('active');
+        tableModeButton.classList.remove('active');
+      });
+
+      downloadExcelButton.addEventListener('click', () => {
+        grid.downloadExcel('highcolor-grid-demo.xls');
+      });
+
+      uploadExcelButton.addEventListener('click', () => {
+        excelUploadInput.value = '';
+        excelUploadInput.click();
+      });
+
+      crudSampleButton.addEventListener('click', () => {
+        window.location.href = '/examples/crud.html';
+      });
+
+      excelUploadInput.addEventListener('change', async () => {
+        const [file] = excelUploadInput.files || [];
+
+        if (!file) {
+          return;
+        }
+
+        try {
+          const rows = parseExcelRows(await file.text());
+          grid.setData(rows);
+          grid.page = 1;
+          excelStatus.textContent = `${rows.length} rows uploaded`;
+        } catch (error) {
+          console.error('excel-upload-failed', error);
+          excelStatus.textContent = 'Upload failed';
+        }
       });
     </script>
   </body>

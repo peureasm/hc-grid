@@ -1,8 +1,18 @@
 export type GridAlign = 'left' | 'center' | 'right';
 export type HcGridAlign = GridAlign;
+export type GridViewMode = 'table' | 'card';
 export type GridRow = Record<string, unknown>;
 export type HcGridRow = GridRow;
 export type GridFormatter = (value: unknown, row: GridRow, column: GridColumn, rowIndex: number) => unknown;
+export type GridCardRenderContext = {
+    row: GridRow;
+    rowIndex: number;
+    columns: GridColumn[];
+    selected: boolean;
+    checked: boolean;
+    toggleChecked: (checked?: boolean) => void;
+};
+export type GridCardRenderer = (context: GridCardRenderContext) => Node | string | null | undefined;
 export type GridCellComponent = 'button' | 'checkbox' | 'dropdown-menu' | 'input' | 'select' | 'multi-select' | 'badge';
 export type GridOption = {
     label: string;
@@ -55,6 +65,7 @@ export type GridCellEditDetail = {
 export type GridPageChangeDetail = {
     page: number;
     pageSize: number;
+    pageSizeOptions: number[];
     totalRows: number;
     totalPages: number;
 };

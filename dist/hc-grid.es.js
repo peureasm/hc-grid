@@ -1,7 +1,7 @@
-var f = Object.defineProperty;
-var x = (l, g, e) => g in l ? f(l, g, { enumerable: !0, configurable: !0, writable: !0, value: e }) : l[g] = e;
-var d = (l, g, e) => x(l, typeof g != "symbol" ? g + "" : g, e);
-const v = `
+var x = Object.defineProperty;
+var v = (h, g, e) => g in h ? x(h, g, { enumerable: !0, configurable: !0, writable: !0, value: e }) : h[g] = e;
+var a = (h, g, e) => v(h, typeof g != "symbol" ? g + "" : g, e);
+const w = `
   :host {
     --hc-grid-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --hc-grid-bg: #fff;
@@ -51,8 +51,20 @@ const v = `
     border-bottom: 1px solid var(--hc-grid-border-color);
   }
 
+  .hc-grid--card .hc-grid__header {
+    display: none;
+  }
+
   .hc-grid__body {
     min-width: max-content;
+  }
+
+  .hc-grid--card .hc-grid__body {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    min-width: 0;
+    padding: 12px;
   }
 
   .hc-grid__row {
@@ -61,6 +73,107 @@ const v = `
 
   .hc-grid__row:last-child {
     border-bottom: 0;
+  }
+
+  .hc-grid__card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    border: 1px solid var(--hc-grid-border-color);
+    border-radius: var(--hc-grid-radius);
+    padding: 12px;
+    background: var(--hc-grid-bg);
+  }
+
+  .hc-grid__card:hover {
+    background: var(--hc-grid-row-hover-bg);
+  }
+
+  .hc-grid__card--selected,
+  .hc-grid__card--selected:hover {
+    background: var(--hc-grid-selected-bg);
+  }
+
+  .hc-grid__card:focus-visible {
+    outline: 2px solid var(--hc-grid-focus);
+    outline-offset: -2px;
+  }
+
+  .hc-grid__card-header {
+    min-width: 0;
+  }
+
+  .hc-grid__card-title {
+    overflow: hidden;
+    color: var(--hc-grid-text-color);
+    font-size: 15px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hc-grid__card-subtitle {
+    overflow: hidden;
+    margin-top: 3px;
+    color: var(--hc-grid-empty-text-color);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hc-grid__card-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--hc-grid-empty-text-color);
+    font-size: 12px;
+  }
+
+  .hc-grid__card-check input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+  }
+
+  .hc-grid__card-content {
+    display: grid;
+    gap: 8px;
+  }
+
+  .hc-grid__card-custom {
+    min-width: 0;
+  }
+
+  .hc-grid__card-field {
+    display: grid;
+    grid-template-columns: minmax(76px, 0.42fr) minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .hc-grid__card-label {
+    overflow: hidden;
+    color: var(--hc-grid-empty-text-color);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hc-grid__card-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hc-grid__card-value--center {
+    text-align: center;
+  }
+
+  .hc-grid__card-value--right {
+    text-align: right;
   }
 
   .hc-grid__row:hover {
@@ -346,9 +459,10 @@ const v = `
   .hc-grid__pager {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 10px 0 0;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 0 0;
     color: var(--hc-grid-text-color);
   }
 
@@ -356,68 +470,120 @@ const v = `
     display: none;
   }
 
-  .hc-grid__pager-button {
-    min-width: 76px;
+  .hc-grid__pager-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--hc-grid-empty-text-color);
+    white-space: nowrap;
+  }
+
+  .hc-grid__pager-select {
+    min-height: 32px;
     border: 1px solid var(--hc-grid-border-color);
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 0 28px 0 8px;
     background: var(--hc-grid-bg);
     color: var(--hc-grid-text-color);
     font: inherit;
+  }
+
+  .hc-grid__pager-pages {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-width: 0;
+    margin-left: auto;
+  }
+
+  .hc-grid__pager-arrow,
+  .hc-grid__pager-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #64748b;
+    font: inherit;
+    font-weight: 600;
+    line-height: 1;
     cursor: pointer;
   }
 
-  .hc-grid__pager-button:hover:not(:disabled) {
+  .hc-grid__pager-arrow {
+    color: #1e3a8a;
+    font-size: 28px;
+    font-weight: 400;
+  }
+
+  .hc-grid__pager-arrow:hover:not(:disabled),
+  .hc-grid__pager-page:hover:not(.hc-grid__pager-page--active) {
     background: var(--hc-grid-row-hover-bg);
+    color: var(--hc-grid-text-color);
   }
 
-  .hc-grid__pager-button:disabled {
+  .hc-grid__pager-arrow:disabled {
+    color: #cbd5e1;
     cursor: not-allowed;
-    opacity: 0.45;
   }
 
-  .hc-grid__pager-status {
-    min-width: 140px;
-    text-align: center;
-    color: var(--hc-grid-empty-text-color);
+  .hc-grid__pager-page--active {
+    background: #1e3a8a;
+    color: #ffffff;
   }
-`, w = {
+
+  .hc-grid__pager-ellipsis {
+    min-width: 28px;
+    text-align: center;
+    color: #64748b;
+    font-weight: 600;
+  }
+`, C = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#039;"
 };
-function m(l) {
-  return String(l ?? "").replace(/[&<>"']/g, (g) => w[g]);
+function m(h) {
+  return String(h ?? "").replace(/[&<>"']/g, (g) => C[g]);
 }
-const u = "No data", C = 44, b = 40;
+const u = "No data", S = 44, b = 40, f = [5, 10, 20, 50, 100];
 class y extends HTMLElement {
   constructor() {
     super();
-    d(this, "_columns", []);
-    d(this, "_rows", []);
-    d(this, "_sortState", null);
-    d(this, "_selectedIndex", null);
-    d(this, "shadow");
-    d(this, "_emptyText", u);
-    d(this, "_isConnected", !1);
-    d(this, "_checkboxSelection", !1);
-    d(this, "_checkedRows", /* @__PURE__ */ new Set());
-    d(this, "_columnWidths", /* @__PURE__ */ new Map());
-    d(this, "_pagination", !1);
-    d(this, "_page", 1);
-    d(this, "_pageSize", 20);
-    d(this, "_virtualScroll", !1);
-    d(this, "_rowHeight", b);
-    d(this, "_editingCell", null);
-    d(this, "_resizeState", null);
-    d(this, "_popup", null);
-    d(this, "handleDocumentPointerDown", (e) => {
+    a(this, "_columns", []);
+    a(this, "_rows", []);
+    a(this, "_sortState", null);
+    a(this, "_selectedIndex", null);
+    a(this, "shadow");
+    a(this, "_emptyText", u);
+    a(this, "_isConnected", !1);
+    a(this, "_checkboxSelection", !1);
+    a(this, "_checkedRows", /* @__PURE__ */ new Set());
+    a(this, "_columnWidths", /* @__PURE__ */ new Map());
+    a(this, "_pagination", !1);
+    a(this, "_page", 1);
+    a(this, "_pageSize", 20);
+    a(this, "_pageSizeOptions", [...f]);
+    a(this, "_virtualScroll", !1);
+    a(this, "_rowHeight", b);
+    a(this, "_viewMode", "table");
+    a(this, "_cardTitleField", null);
+    a(this, "_cardSubtitleField", null);
+    a(this, "_cardRenderer", null);
+    a(this, "_editingCell", null);
+    a(this, "_resizeState", null);
+    a(this, "_popup", null);
+    a(this, "handleDocumentPointerDown", (e) => {
       e.composedPath().includes(this) || this.closePopup();
     });
     this.shadow = this.attachShadow({ mode: "open" }), this.shadow.innerHTML = `
-      <style>${v}</style>
+      <style>${w}</style>
       <div class="hc-grid" part="container" role="grid">
         <div class="hc-grid__header" part="header" role="row"></div>
         <div class="hc-grid__body" part="body"></div>
@@ -432,7 +598,7 @@ class y extends HTMLElement {
     return ["height", "empty-text"];
   }
   connectedCallback() {
-    this.upgradeProperty("columns"), this.upgradeProperty("rows"), this.upgradeProperty("emptyText"), this.upgradeProperty("checkboxSelection"), this.upgradeProperty("pagination"), this.upgradeProperty("page"), this.upgradeProperty("pageSize"), this.upgradeProperty("virtualScroll"), this.upgradeProperty("rowHeight"), this._isConnected = !0, this.syncAttributes(), this.render(), document.addEventListener("pointerdown", this.handleDocumentPointerDown);
+    this.upgradeProperty("columns"), this.upgradeProperty("rows"), this.upgradeProperty("emptyText"), this.upgradeProperty("checkboxSelection"), this.upgradeProperty("pagination"), this.upgradeProperty("page"), this.upgradeProperty("pageSize"), this.upgradeProperty("pageSizeOptions"), this.upgradeProperty("virtualScroll"), this.upgradeProperty("rowHeight"), this.upgradeProperty("viewMode"), this.upgradeProperty("cardTitleField"), this.upgradeProperty("cardSubtitleField"), this.upgradeProperty("cardRenderer"), this._isConnected = !0, this.syncAttributes(), this.render(), document.addEventListener("pointerdown", this.handleDocumentPointerDown);
   }
   disconnectedCallback() {
     document.removeEventListener("pointerdown", this.handleDocumentPointerDown);
@@ -485,6 +651,13 @@ class y extends HTMLElement {
   get pageSize() {
     return this._pageSize;
   }
+  set pageSizeOptions(e) {
+    const t = Array.isArray(e) ? e.map((i) => this.normalizePositiveNumber(i)).filter((i) => i !== null) : [];
+    this._pageSizeOptions = t.length > 0 ? Array.from(new Set(t)).sort((i, r) => i - r) : [...f], this._pageSizeOptions.includes(this._pageSize) || (this._pageSizeOptions = [...this._pageSizeOptions, this._pageSize].sort((i, r) => i - r)), this.renderIfReady();
+  }
+  get pageSizeOptions() {
+    return [...this._pageSizeOptions];
+  }
   set virtualScroll(e) {
     this._virtualScroll = !!e, this.renderIfReady();
   }
@@ -496,6 +669,30 @@ class y extends HTMLElement {
   }
   get rowHeight() {
     return this._rowHeight;
+  }
+  set viewMode(e) {
+    this._viewMode = e === "card" ? "card" : "table", this.closePopup(), this.renderIfReady();
+  }
+  get viewMode() {
+    return this._viewMode;
+  }
+  set cardTitleField(e) {
+    this._cardTitleField = e || null, this.renderIfReady();
+  }
+  get cardTitleField() {
+    return this._cardTitleField;
+  }
+  set cardSubtitleField(e) {
+    this._cardSubtitleField = e || null, this.renderIfReady();
+  }
+  get cardSubtitleField() {
+    return this._cardSubtitleField;
+  }
+  set cardRenderer(e) {
+    this._cardRenderer = typeof e == "function" ? e : null, this.renderIfReady();
+  }
+  get cardRenderer() {
+    return this._cardRenderer;
   }
   setData(e) {
     this.rows = e;
@@ -526,10 +723,10 @@ class y extends HTMLElement {
     this.renderIfReady();
   }
   sortBy(e, t = "asc") {
-    if (!this._columns.find((r) => r.field === e && r.sortable))
+    if (!this._columns.find((s) => s.field === e && s.sortable))
       return;
-    const s = this.getSelectedRow();
-    this._sortState = { field: e, direction: t }, this.restoreSelectedIndex(s), this.dispatchSortChange(), this.renderIfReady();
+    const r = this.getSelectedRow();
+    this._sortState = { field: e, direction: t }, this.restoreSelectedIndex(r), this.dispatchSortChange(), this.renderIfReady();
   }
   clearSort() {
     if (!this._sortState)
@@ -543,7 +740,11 @@ class y extends HTMLElement {
   }
   setPageSize(e) {
     const t = this.normalizePositiveNumber(e) || this._pageSize;
-    t !== this._pageSize && (this._pageSize = t, this._page = 1, this._selectedIndex = null, this.dispatchPageChange(), this.renderIfReady());
+    if (this._pageSizeOptions.includes(t) || (this._pageSizeOptions = [...this._pageSizeOptions, t].sort((i, r) => i - r)), t === this._pageSize) {
+      this.renderIfReady();
+      return;
+    }
+    this._pageSize = t, this._page = 1, this._selectedIndex = null, this.dispatchPageChange(), this.renderIfReady();
   }
   nextPage() {
     this.setPage(this._page + 1);
@@ -556,30 +757,31 @@ class y extends HTMLElement {
     return {
       page: this._page,
       pageSize: this._pageSize,
+      pageSizeOptions: this.pageSizeOptions,
       totalRows: e,
       totalPages: t
     };
   }
   exportCsv(e = {}) {
-    const t = e.includeHeaders !== !1, i = e.rows || this.getSortedRows(), s = [];
-    return t && s.push(this._columns.map((r) => this.escapeCsvCell(this.sanitizeExportString(r.header))).join(",")), i.forEach((r, n) => {
-      s.push(
-        this._columns.map((o) => this.escapeCsvCell(this.getExportValue(r, o, n))).join(",")
+    const t = e.includeHeaders !== !1, i = e.rows || this.getSortedRows(), r = [];
+    return t && r.push(this._columns.map((s) => this.escapeCsvCell(this.sanitizeExportString(s.header))).join(",")), i.forEach((s, n) => {
+      r.push(
+        this._columns.map((c) => this.escapeCsvCell(this.getExportValue(s, c, n))).join(",")
       );
-    }), s.join(`\r
+    }), r.join(`\r
 `);
   }
   downloadCsv(e = "hc-grid.csv") {
     this.downloadFile(e, "text/csv;charset=utf-8", this.exportCsv({ fileName: e }));
   }
   exportExcel(e = {}) {
-    const t = e.includeHeaders !== !1, i = e.rows || this.getSortedRows(), s = t ? `<tr>${this._columns.map((n) => `<th>${m(this.sanitizeExportString(n.header))}</th>`).join("")}</tr>` : "", r = i.map((n, o) => `<tr>${this._columns.map((a) => `<td>${m(String(this.getExportValue(n, a, o) ?? ""))}</td>`).join("")}</tr>`).join("");
+    const t = e.includeHeaders !== !1, i = e.rows || this.getSortedRows(), r = t ? `<tr>${this._columns.map((n) => `<th>${m(this.sanitizeExportString(n.header))}</th>`).join("")}</tr>` : "", s = i.map((n, c) => `<tr>${this._columns.map((o) => `<td>${m(String(this.getExportValue(n, o, c) ?? ""))}</td>`).join("")}</tr>`).join("");
     return [
       "<html>",
       '<head><meta charset="UTF-8" /></head>',
       "<body><table>",
-      s,
       r,
+      s,
       "</table></body>",
       "</html>"
     ].join("");
@@ -588,18 +790,33 @@ class y extends HTMLElement {
     this.downloadFile(e, "application/vnd.ms-excel;charset=utf-8", this.exportExcel({ fileName: e }));
   }
   render() {
-    const e = this.getContainer(), t = this.getHeader(), i = this.getBody(), s = this.getPager(), r = this.getOverlay(), n = this.getTemplateColumns();
-    e.style.setProperty("--hc-grid-row-height", `${this._rowHeight}px`), e.setAttribute("aria-rowcount", String(this.getCurrentRows().length)), e.setAttribute("aria-colcount", String(this._columns.length + (this._checkboxSelection ? 1 : 0))), t.style.gridTemplateColumns = n, this.renderHeader(t), this.renderBody(i, n), this.renderPager(s), this.renderPopup(r);
+    const e = this.getContainer(), t = this.getHeader(), i = this.getBody(), r = this.getPager(), s = this.getOverlay(), n = this.getTemplateColumns();
+    e.classList.toggle("hc-grid--card", this._viewMode === "card"), t.hidden = this._viewMode === "card", e.style.setProperty("--hc-grid-row-height", `${this._rowHeight}px`), e.setAttribute("aria-rowcount", String(this.getCurrentRows().length)), e.setAttribute("aria-colcount", String(this._columns.length + (this._checkboxSelection ? 1 : 0))), t.style.gridTemplateColumns = n, this.renderHeader(t), this.renderBody(i, n), this.renderPager(r), this.renderPopup(s);
   }
   renderPager(e) {
     if (e.replaceChildren(), e.hidden = !this._pagination, !this._pagination)
       return;
-    const t = this.getPageInfo(), i = document.createElement("button"), s = document.createElement("button"), r = document.createElement("span");
-    i.type = "button", i.className = "hc-grid__pager-button", i.textContent = "Previous", i.disabled = t.page <= 1, i.addEventListener("click", () => {
+    const t = this.getPageInfo(), i = document.createElement("button"), r = document.createElement("button"), s = document.createElement("label"), n = document.createElement("select"), c = document.createElement("div");
+    i.type = "button", i.className = "hc-grid__pager-arrow", i.textContent = "‹", i.setAttribute("aria-label", "Previous page"), i.disabled = t.page <= 1, i.addEventListener("click", () => {
       this.previousPage();
-    }), s.type = "button", s.className = "hc-grid__pager-button", s.textContent = "Next", s.disabled = t.page >= t.totalPages, s.addEventListener("click", () => {
+    }), r.type = "button", r.className = "hc-grid__pager-arrow", r.textContent = "›", r.setAttribute("aria-label", "Next page"), r.disabled = t.page >= t.totalPages, r.addEventListener("click", () => {
       this.nextPage();
-    }), r.className = "hc-grid__pager-status", r.textContent = `Page ${t.page} / ${t.totalPages} (${t.totalRows} rows)`, e.append(i, r, s);
+    }), s.className = "hc-grid__pager-size", n.className = "hc-grid__pager-select", n.setAttribute("aria-label", "Rows per page"), this.pageSizeOptions.forEach((d) => {
+      const o = document.createElement("option");
+      o.value = String(d), o.textContent = String(d), o.selected = d === this._pageSize, n.append(o);
+    }), n.addEventListener("change", () => {
+      this.setPageSize(Number(n.value));
+    }), s.append(document.createTextNode("Rows"), n), c.className = "hc-grid__pager-pages", c.setAttribute("aria-label", `Pagination, ${t.totalRows} rows`), c.append(i), this.getVisiblePageItems(t.page, t.totalPages).forEach((d) => {
+      if (d === "ellipsis") {
+        const l = document.createElement("span");
+        l.className = "hc-grid__pager-ellipsis", l.textContent = "...", l.setAttribute("aria-hidden", "true"), c.append(l);
+        return;
+      }
+      const o = document.createElement("button");
+      o.type = "button", o.className = "hc-grid__pager-page", o.textContent = String(d), o.setAttribute("aria-label", `Page ${d}`), d === t.page && (o.classList.add("hc-grid__pager-page--active"), o.setAttribute("aria-current", "page")), o.addEventListener("click", () => {
+        this.setPage(d);
+      }), c.append(o);
+    }), c.append(r), e.append(s, c);
   }
   renderPopup(e) {
     if (e.replaceChildren(), !this._popup)
@@ -613,8 +830,8 @@ class y extends HTMLElement {
   }
   renderDropdownPopup(e, t) {
     this.getColumnOptions(t.column).forEach((i) => {
-      const s = document.createElement("button");
-      s.type = "button", s.className = "hc-grid__popup-item", s.textContent = i.label, s.addEventListener("click", () => {
+      const r = document.createElement("button");
+      r.type = "button", r.className = "hc-grid__popup-item", r.textContent = i.label, r.addEventListener("click", () => {
         this.dispatchCellAction(
           t.row,
           t.rowIndex,
@@ -622,64 +839,148 @@ class y extends HTMLElement {
           t.value,
           String(i.value)
         ), this.closePopup();
-      }), e.append(s);
+      }), e.append(r);
     });
   }
   renderMultiSelectPopup(e, t) {
     const i = Array.isArray(t.row[t.column.field]) ? t.row[t.column.field] : [];
-    this.getColumnOptions(t.column).forEach((s) => {
-      const r = document.createElement("label"), n = document.createElement("input");
-      r.className = "hc-grid__popup-check", n.type = "checkbox", n.checked = i.some((o) => Object.is(o, s.value)), n.addEventListener("change", () => {
-        const o = n.checked ? [...i, s.value] : i.filter((c) => !Object.is(c, s.value));
-        this.commitControlValue(t.row, t.rowIndex, t.column, o, !1), this._popup = {
+    this.getColumnOptions(t.column).forEach((r) => {
+      const s = document.createElement("label"), n = document.createElement("input");
+      s.className = "hc-grid__popup-check", n.type = "checkbox", n.checked = i.some((c) => Object.is(c, r.value)), n.addEventListener("change", () => {
+        const c = n.checked ? [...i, r.value] : i.filter((d) => !Object.is(d, r.value));
+        this.commitControlValue(t.row, t.rowIndex, t.column, c, !1), this._popup = {
           ...t,
-          value: o
+          value: c
         }, this.renderPopup(this.getOverlay());
-      }), r.append(n, document.createTextNode(s.label)), e.append(r);
+      }), s.append(n, document.createTextNode(r.label)), e.append(s);
     });
   }
   renderHeader(e) {
     e.replaceChildren(), this._checkboxSelection && e.append(this.createHeaderCheckboxCell()), this._columns.forEach((t, i) => {
-      var r;
-      const s = document.createElement("div");
-      s.className = this.getCellClassName(t, "hc-grid__header-cell"), s.part.add("header-cell"), s.setAttribute("role", "columnheader"), s.setAttribute("aria-colindex", String(i + 1 + (this._checkboxSelection ? 1 : 0))), s.textContent = t.header, t.sortable && (s.classList.add("hc-grid__header-cell--sortable"), s.part.add("sortable-header-cell"), s.dataset.sortable = "true", s.tabIndex = 0, s.setAttribute("aria-sort", this.getAriaSortValue(t)), s.addEventListener("click", () => {
+      var s;
+      const r = document.createElement("div");
+      r.className = this.getCellClassName(t, "hc-grid__header-cell"), r.part.add("header-cell"), r.setAttribute("role", "columnheader"), r.setAttribute("aria-colindex", String(i + 1 + (this._checkboxSelection ? 1 : 0))), r.textContent = t.header, t.sortable && (r.classList.add("hc-grid__header-cell--sortable"), r.part.add("sortable-header-cell"), r.dataset.sortable = "true", r.tabIndex = 0, r.setAttribute("aria-sort", this.getAriaSortValue(t)), r.addEventListener("click", () => {
         this.toggleSort(t);
-      }), s.addEventListener("keydown", (n) => {
+      }), r.addEventListener("keydown", (n) => {
         (n.key === "Enter" || n.key === " ") && (n.preventDefault(), this.toggleSort(t));
-      }), ((r = this._sortState) == null ? void 0 : r.field) === t.field && s.classList.add(`hc-grid__header-cell--sorted-${this._sortState.direction}`)), t.resizable && (s.classList.add("hc-grid__header-cell--resizable"), s.append(this.createResizeHandle(t))), e.append(s);
+      }), ((s = this._sortState) == null ? void 0 : s.field) === t.field && r.classList.add(`hc-grid__header-cell--sorted-${this._sortState.direction}`)), t.resizable && (r.classList.add("hc-grid__header-cell--resizable"), r.append(this.createResizeHandle(t))), e.append(r);
     });
   }
   createHeaderCheckboxCell() {
-    const e = document.createElement("div"), t = document.createElement("input"), i = this.getCurrentRows(), s = i.filter((r) => this._checkedRows.has(r)).length;
-    return e.className = "hc-grid__header-cell hc-grid__checkbox-cell", e.part.add("header-cell"), e.setAttribute("role", "columnheader"), e.setAttribute("aria-colindex", "1"), t.type = "checkbox", t.checked = i.length > 0 && s === i.length, t.indeterminate = s > 0 && s < i.length, t.addEventListener("click", (r) => {
-      r.stopPropagation(), this.toggleAllCurrentRows(t.checked);
+    const e = document.createElement("div"), t = document.createElement("input"), i = this.getCurrentRows(), r = i.filter((s) => this._checkedRows.has(s)).length;
+    return e.className = "hc-grid__header-cell hc-grid__checkbox-cell", e.part.add("header-cell"), e.setAttribute("role", "columnheader"), e.setAttribute("aria-colindex", "1"), t.type = "checkbox", t.checked = i.length > 0 && r === i.length, t.indeterminate = r > 0 && r < i.length, t.addEventListener("click", (s) => {
+      s.stopPropagation(), this.toggleAllCurrentRows(t.checked);
     }), e.append(t), e;
   }
   renderBody(e, t) {
-    e.replaceChildren();
+    e.replaceChildren(), e.classList.toggle("hc-grid__body--cards", this._viewMode === "card");
     const i = this.getCurrentRows();
     if (i.length === 0) {
       this.renderEmpty(e);
       return;
     }
+    if (this._viewMode === "card") {
+      this.renderCards(e, i);
+      return;
+    }
     if (!this._virtualScroll) {
-      i.forEach((h, p) => {
-        e.append(this.createRow(h, p, t));
+      i.forEach((l, p) => {
+        e.append(this.createRow(l, p, t));
       });
       return;
     }
-    const s = this.getContainer(), r = Math.max(1, Math.ceil(s.clientHeight / this._rowHeight) + 4), n = Math.max(0, Math.floor(s.scrollTop / this._rowHeight) - 2), o = Math.min(i.length, n + r), c = document.createElement("div"), a = document.createElement("div");
-    c.className = "hc-grid__virtual-spacer", c.style.height = `${n * this._rowHeight}px`, a.className = "hc-grid__virtual-spacer", a.style.height = `${(i.length - o) * this._rowHeight}px`, e.append(c), i.slice(n, o).forEach((h, p) => {
-      e.append(this.createRow(h, n + p, t));
-    }), e.append(a);
+    const r = this.getContainer(), s = Math.max(1, Math.ceil(r.clientHeight / this._rowHeight) + 4), n = Math.max(0, Math.floor(r.scrollTop / this._rowHeight) - 2), c = Math.min(i.length, n + s), d = document.createElement("div"), o = document.createElement("div");
+    d.className = "hc-grid__virtual-spacer", d.style.height = `${n * this._rowHeight}px`, o.className = "hc-grid__virtual-spacer", o.style.height = `${(i.length - c) * this._rowHeight}px`, e.append(d), i.slice(n, c).forEach((l, p) => {
+      e.append(this.createRow(l, n + p, t));
+    }), e.append(o);
+  }
+  renderCards(e, t) {
+    e.classList.add("hc-grid__body--cards"), t.forEach((i, r) => {
+      e.append(this.createCard(i, r));
+    });
   }
   renderEmpty(e) {
     const t = document.createElement("div");
     t.className = "hc-grid__empty", t.part.add("empty"), t.setAttribute("role", "status"), t.textContent = this._emptyText, e.append(t);
   }
+  createCard(e, t) {
+    const i = this._selectedIndex === t, r = document.createElement("div");
+    r.className = i ? "hc-grid__card hc-grid__card--selected" : "hc-grid__card", r.part.add("row"), r.setAttribute("role", "row"), r.setAttribute("tabindex", "0"), r.setAttribute("aria-rowindex", String(t + 1)), r.setAttribute("aria-selected", String(i)), r.addEventListener("click", () => {
+      this._selectedIndex = t;
+      const c = { row: e, index: t };
+      this.dispatchEvent(
+        new CustomEvent("row-click", {
+          detail: c,
+          bubbles: !0,
+          composed: !0
+        })
+      ), this.render();
+    });
+    const s = this.createCustomCardContent(e, t, i);
+    if (s)
+      return r.append(s), r;
+    r.append(this.createCardHeader(e)), this._checkboxSelection && r.append(this.createCardCheckbox(e));
+    const n = document.createElement("div");
+    return n.className = "hc-grid__card-content", this._columns.forEach((c, d) => {
+      c.field === this._cardTitleField || c.field === this._cardSubtitleField || n.append(this.createCardField(e, t, c, d));
+    }), r.append(n), r;
+  }
+  createCustomCardContent(e, t, i) {
+    if (!this._cardRenderer)
+      return null;
+    const r = this._cardRenderer({
+      row: e,
+      rowIndex: t,
+      columns: this._columns,
+      selected: i,
+      checked: this._checkedRows.has(e),
+      toggleChecked: (s) => {
+        this.toggleRowChecked(e, s ?? !this._checkedRows.has(e));
+      }
+    });
+    if (r == null)
+      return null;
+    if (typeof r == "string") {
+      const s = document.createElement("div");
+      return s.className = "hc-grid__card-custom", s.textContent = r, s;
+    }
+    return r;
+  }
+  createCardHeader(e) {
+    var n;
+    const t = document.createElement("div"), i = document.createElement("div"), r = document.createElement("div"), s = this._cardTitleField || ((n = this._columns[0]) == null ? void 0 : n.field);
+    return t.className = "hc-grid__card-header", i.className = "hc-grid__card-title", i.textContent = s ? String(e[s] ?? "") : "Card", t.append(i), this._cardSubtitleField && (r.className = "hc-grid__card-subtitle", r.textContent = String(e[this._cardSubtitleField] ?? ""), t.append(r)), t;
+  }
+  createCardCheckbox(e) {
+    const t = document.createElement("label"), i = document.createElement("input");
+    return t.className = "hc-grid__card-check", i.type = "checkbox", i.checked = this._checkedRows.has(e), i.addEventListener("click", (r) => {
+      r.stopPropagation();
+    }), i.addEventListener("change", () => {
+      this.toggleRowChecked(e, i.checked);
+    }), t.append(i, document.createTextNode("Selected")), t;
+  }
+  createCardField(e, t, i, r) {
+    const s = document.createElement("div"), n = document.createElement("div"), c = document.createElement("div"), d = e[i.field];
+    return s.className = "hc-grid__card-field", n.className = "hc-grid__card-label", n.textContent = i.header, c.className = "hc-grid__card-value", i.align === "center" && c.classList.add("hc-grid__card-value--center"), i.align === "right" && c.classList.add("hc-grid__card-value--right"), i.component ? c.append(this.createCellComponent(e, t, i, d)) : c.textContent = String(this.getFormattedValue(e, i, t) ?? ""), c.addEventListener("click", (o) => {
+      o.stopPropagation();
+      const l = {
+        row: e,
+        column: i,
+        rowIndex: t,
+        value: d
+      };
+      this.dispatchEvent(
+        new CustomEvent("cell-click", {
+          detail: l,
+          bubbles: !0,
+          composed: !0
+        })
+      );
+    }), c.setAttribute("aria-colindex", String(r + 1 + (this._checkboxSelection ? 1 : 0))), s.append(n, c), s;
+  }
   createRow(e, t, i) {
-    const s = this._selectedIndex === t, r = document.createElement("div");
-    return r.className = s ? "hc-grid__row hc-grid__row--selected" : "hc-grid__row", r.part.add("row"), r.style.gridTemplateColumns = i, r.setAttribute("role", "row"), r.setAttribute("tabindex", "0"), r.setAttribute("aria-rowindex", String(t + 1)), r.setAttribute("aria-selected", String(s)), this._virtualScroll && (r.style.minHeight = `${this._rowHeight}px`), s && r.part.add("selected-row"), r.addEventListener("click", () => {
+    const r = this._selectedIndex === t, s = document.createElement("div");
+    return s.className = r ? "hc-grid__row hc-grid__row--selected" : "hc-grid__row", s.part.add("row"), s.style.gridTemplateColumns = i, s.setAttribute("role", "row"), s.setAttribute("tabindex", "0"), s.setAttribute("aria-rowindex", String(t + 1)), s.setAttribute("aria-selected", String(r)), this._virtualScroll && (s.style.minHeight = `${this._rowHeight}px`), r && s.part.add("selected-row"), s.addEventListener("click", () => {
       this._selectedIndex = t;
       const n = { row: e, index: t };
       this.dispatchEvent(
@@ -689,23 +990,23 @@ class y extends HTMLElement {
           composed: !0
         })
       ), this.render();
-    }), this._checkboxSelection && r.append(this.createRowCheckboxCell(e)), this._columns.forEach((n, o) => {
-      r.append(this.createCell(e, t, n, o));
-    }), r;
+    }), this._checkboxSelection && s.append(this.createRowCheckboxCell(e)), this._columns.forEach((n, c) => {
+      s.append(this.createCell(e, t, n, c));
+    }), s;
   }
   createRowCheckboxCell(e) {
     const t = document.createElement("div"), i = document.createElement("input");
-    return t.className = "hc-grid__cell hc-grid__checkbox-cell", t.part.add("cell"), t.setAttribute("role", "gridcell"), i.type = "checkbox", i.checked = this._checkedRows.has(e), i.addEventListener("click", (s) => {
-      s.stopPropagation(), this.toggleRowChecked(e, i.checked);
+    return t.className = "hc-grid__cell hc-grid__checkbox-cell", t.part.add("cell"), t.setAttribute("role", "gridcell"), i.type = "checkbox", i.checked = this._checkedRows.has(e), i.addEventListener("click", (r) => {
+      r.stopPropagation(), this.toggleRowChecked(e, i.checked);
     }), t.append(i), t;
   }
-  createCell(e, t, i, s) {
-    var c;
-    const r = document.createElement("div");
-    r.className = this.getCellClassName(i, "hc-grid__cell"), r.part.add("cell"), r.setAttribute("role", "gridcell"), r.setAttribute("aria-colindex", String(s + 1 + (this._checkboxSelection ? 1 : 0)));
+  createCell(e, t, i, r) {
+    var d;
+    const s = document.createElement("div");
+    s.className = this.getCellClassName(i, "hc-grid__cell"), s.part.add("cell"), s.setAttribute("role", "gridcell"), s.setAttribute("aria-colindex", String(r + 1 + (this._checkboxSelection ? 1 : 0)));
     const n = e[i.field];
-    return ((c = this._editingCell) == null ? void 0 : c.row) === e && this._editingCell.column.field === i.field && this._editingCell.rowIndex === t ? r.append(this.createCellEditor(e, t, i, n)) : i.component ? (r.classList.add("hc-grid__cell--component"), r.append(this.createCellComponent(e, t, i, n))) : this.renderCellValue(r, e, t, i), r.addEventListener("click", () => {
-      const a = {
+    return ((d = this._editingCell) == null ? void 0 : d.row) === e && this._editingCell.column.field === i.field && this._editingCell.rowIndex === t ? s.append(this.createCellEditor(e, t, i, n)) : i.component ? (s.classList.add("hc-grid__cell--component"), s.append(this.createCellComponent(e, t, i, n))) : this.renderCellValue(s, e, t, i), s.addEventListener("click", () => {
+      const o = {
         row: e,
         column: i,
         rowIndex: t,
@@ -713,103 +1014,103 @@ class y extends HTMLElement {
       };
       this.dispatchEvent(
         new CustomEvent("cell-click", {
-          detail: a,
+          detail: o,
           bubbles: !0,
           composed: !0
         })
       );
-    }), i.editable && (r.classList.add("hc-grid__cell--editable"), r.addEventListener("dblclick", () => {
+    }), i.editable && (s.classList.add("hc-grid__cell--editable"), s.addEventListener("dblclick", () => {
       this.startEdit(e, t, i);
-    })), r;
+    })), s;
   }
-  renderCellValue(e, t, i, s) {
-    const r = this.getFormattedValue(t, s, i);
-    e.textContent = r == null ? "" : String(r);
+  renderCellValue(e, t, i, r) {
+    const s = this.getFormattedValue(t, r, i);
+    e.textContent = s == null ? "" : String(s);
   }
-  createCellComponent(e, t, i, s) {
+  createCellComponent(e, t, i, r) {
     if (i.component === "button")
-      return this.createButtonComponent(e, t, i, s);
+      return this.createButtonComponent(e, t, i, r);
     if (i.component === "checkbox")
-      return this.createCheckboxComponent(e, t, i, s);
+      return this.createCheckboxComponent(e, t, i, r);
     if (i.component === "dropdown-menu")
-      return this.createDropdownMenuComponent(e, t, i, s);
+      return this.createDropdownMenuComponent(e, t, i, r);
     if (i.component === "input")
-      return this.createInputComponent(e, t, i, s);
+      return this.createInputComponent(e, t, i, r);
     if (i.component === "select")
-      return this.createSelectComponent(e, t, i, s, !1);
+      return this.createSelectComponent(e, t, i, r, !1);
     if (i.component === "multi-select")
-      return this.createMultiSelectComponent(e, t, i, s);
+      return this.createMultiSelectComponent(e, t, i, r);
     if (i.component === "badge")
       return this.createBadgeComponent(e, t, i);
-    const r = document.createElement("span");
-    return r.textContent = String(this.getFormattedValue(e, i, t) ?? ""), r;
+    const s = document.createElement("span");
+    return s.textContent = String(this.getFormattedValue(e, i, t) ?? ""), s;
   }
-  createButtonComponent(e, t, i, s) {
-    const r = document.createElement("button");
-    return r.type = "button", r.className = "hc-grid__control hc-grid__button", r.textContent = i.buttonLabel || String(this.getFormattedValue(e, i, t) || "Button"), r.addEventListener("click", (n) => {
-      n.stopPropagation(), this.dispatchCellAction(e, t, i, s, "click");
-    }), r;
+  createButtonComponent(e, t, i, r) {
+    const s = document.createElement("button");
+    return s.type = "button", s.className = "hc-grid__control hc-grid__button", s.textContent = i.buttonLabel || String(this.getFormattedValue(e, i, t) || "Button"), s.addEventListener("click", (n) => {
+      n.stopPropagation(), this.dispatchCellAction(e, t, i, r, "click");
+    }), s;
   }
-  createCheckboxComponent(e, t, i, s) {
-    const r = document.createElement("input");
-    return r.type = "checkbox", r.className = "hc-grid__control hc-grid__control-checkbox", r.checked = !!s, r.addEventListener("click", (n) => {
+  createCheckboxComponent(e, t, i, r) {
+    const s = document.createElement("input");
+    return s.type = "checkbox", s.className = "hc-grid__control hc-grid__control-checkbox", s.checked = !!r, s.addEventListener("click", (n) => {
       n.stopPropagation();
-    }), r.addEventListener("change", () => {
-      this.commitControlValue(e, t, i, r.checked);
-    }), r;
+    }), s.addEventListener("change", () => {
+      this.commitControlValue(e, t, i, s.checked);
+    }), s;
   }
-  createDropdownMenuComponent(e, t, i, s) {
-    const r = document.createElement("button");
-    return r.type = "button", r.className = "hc-grid__control hc-grid__dropdown-trigger", r.textContent = i.dropdownLabel || String(this.getFormattedValue(e, i, t) || "Menu"), r.addEventListener("click", (n) => {
-      n.stopPropagation(), this.openPopup("dropdown", e, t, i, s, r);
-    }), r;
+  createDropdownMenuComponent(e, t, i, r) {
+    const s = document.createElement("button");
+    return s.type = "button", s.className = "hc-grid__control hc-grid__dropdown-trigger", s.textContent = i.dropdownLabel || String(this.getFormattedValue(e, i, t) || "Menu"), s.addEventListener("click", (n) => {
+      n.stopPropagation(), this.openPopup("dropdown", e, t, i, r, s);
+    }), s;
   }
-  createInputComponent(e, t, i, s) {
-    const r = document.createElement("input");
-    return r.className = "hc-grid__control hc-grid__input", r.value = s == null ? "" : String(s), r.addEventListener("click", (n) => {
+  createInputComponent(e, t, i, r) {
+    const s = document.createElement("input");
+    return s.className = "hc-grid__control hc-grid__input", s.value = r == null ? "" : String(r), s.addEventListener("click", (n) => {
       n.stopPropagation();
-    }), r.addEventListener("change", () => {
-      this.commitControlValue(e, t, i, r.value);
-    }), r;
+    }), s.addEventListener("change", () => {
+      this.commitControlValue(e, t, i, s.value);
+    }), s;
   }
-  createSelectComponent(e, t, i, s, r) {
-    const n = document.createElement("select"), o = Array.isArray(s) ? s : [s];
-    return n.className = r ? "hc-grid__control hc-grid__select hc-grid__select--multiple" : "hc-grid__control hc-grid__select", n.multiple = r, this.getColumnOptions(i).forEach((c, a) => {
-      const h = document.createElement("option");
-      h.value = String(a), h.textContent = c.label, h.selected = o.some((p) => Object.is(p, c.value)), n.append(h);
-    }), n.addEventListener("click", (c) => {
-      c.stopPropagation();
+  createSelectComponent(e, t, i, r, s) {
+    const n = document.createElement("select"), c = Array.isArray(r) ? r : [r];
+    return n.className = s ? "hc-grid__control hc-grid__select hc-grid__select--multiple" : "hc-grid__control hc-grid__select", n.multiple = s, this.getColumnOptions(i).forEach((d, o) => {
+      const l = document.createElement("option");
+      l.value = String(o), l.textContent = d.label, l.selected = c.some((p) => Object.is(p, d.value)), n.append(l);
+    }), n.addEventListener("click", (d) => {
+      d.stopPropagation();
     }), n.addEventListener("change", () => {
-      var h;
-      const c = this.getColumnOptions(i), a = r ? Array.from(n.selectedOptions).map((p) => {
+      var l;
+      const d = this.getColumnOptions(i), o = s ? Array.from(n.selectedOptions).map((p) => {
         var _;
-        return (_ = c[Number(p.value)]) == null ? void 0 : _.value;
-      }) : (h = c[Number(n.value)]) == null ? void 0 : h.value;
-      this.commitControlValue(e, t, i, a);
+        return (_ = d[Number(p.value)]) == null ? void 0 : _.value;
+      }) : (l = d[Number(n.value)]) == null ? void 0 : l.value;
+      this.commitControlValue(e, t, i, o);
     }), n;
   }
-  createMultiSelectComponent(e, t, i, s) {
-    const r = document.createElement("button"), n = Array.isArray(s) ? s : [], o = this.getColumnOptions(i).filter((c) => n.some((a) => Object.is(a, c.value))).map((c) => c.label);
-    return r.type = "button", r.className = "hc-grid__control hc-grid__multi-select-trigger", r.textContent = o.length > 0 ? o.join(", ") : "Select", r.addEventListener("click", (c) => {
-      c.stopPropagation(), this.openPopup("multi-select", e, t, i, s, r);
-    }), r;
+  createMultiSelectComponent(e, t, i, r) {
+    const s = document.createElement("button"), n = Array.isArray(r) ? r : [], c = this.getColumnOptions(i).filter((d) => n.some((o) => Object.is(o, d.value))).map((d) => d.label);
+    return s.type = "button", s.className = "hc-grid__control hc-grid__multi-select-trigger", s.textContent = c.length > 0 ? c.join(", ") : "Select", s.addEventListener("click", (d) => {
+      d.stopPropagation(), this.openPopup("multi-select", e, t, i, r, s);
+    }), s;
   }
   createBadgeComponent(e, t, i) {
-    const s = document.createElement("span"), r = this.getFormattedValue(e, i, t), n = String(e[i.field] ?? "default").toLowerCase().replace(/[^a-z0-9_-]/g, "");
-    return s.className = `hc-grid__badge hc-grid__badge--${n || "default"}`, s.textContent = r == null ? "" : String(r), s;
+    const r = document.createElement("span"), s = this.getFormattedValue(e, i, t), n = String(e[i.field] ?? "default").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    return r.className = `hc-grid__badge hc-grid__badge--${n || "default"}`, r.textContent = s == null ? "" : String(s), r;
   }
-  openPopup(e, t, i, s, r, n) {
-    const o = n.getBoundingClientRect(), c = Math.min(o.bottom + 4, window.innerHeight - 12);
+  openPopup(e, t, i, r, s, n) {
+    const c = n.getBoundingClientRect(), d = Math.min(c.bottom + 4, window.innerHeight - 12);
     this._popup = {
       kind: e,
       row: t,
-      column: s,
+      column: r,
       rowIndex: i,
-      value: r,
+      value: s,
       anchor: {
-        left: o.left,
-        top: c,
-        width: o.width
+        left: c.left,
+        top: d,
+        width: c.width
       }
     }, this.renderPopup(this.getOverlay());
   }
@@ -819,31 +1120,31 @@ class y extends HTMLElement {
   getColumnOptions(e) {
     return Array.isArray(e.options) ? e.options : [];
   }
-  createCellEditor(e, t, i, s) {
-    const r = document.createElement("input");
-    return r.className = "hc-grid__cell-editor", r.value = s == null ? "" : String(s), r.addEventListener("click", (n) => {
+  createCellEditor(e, t, i, r) {
+    const s = document.createElement("input");
+    return s.className = "hc-grid__cell-editor", s.value = r == null ? "" : String(r), s.addEventListener("click", (n) => {
       n.stopPropagation();
-    }), r.addEventListener("keydown", (n) => {
-      n.key === "Enter" && this.commitEdit(e, t, i, r.value), n.key === "Escape" && this.cancelEdit();
-    }), r.addEventListener("blur", () => {
+    }), s.addEventListener("keydown", (n) => {
+      n.key === "Enter" && this.commitEdit(e, t, i, s.value), n.key === "Escape" && this.cancelEdit();
+    }), s.addEventListener("blur", () => {
       var n;
-      ((n = this._editingCell) == null ? void 0 : n.row) === e && this._editingCell.column.field === i.field && this.commitEdit(e, t, i, r.value);
+      ((n = this._editingCell) == null ? void 0 : n.row) === e && this._editingCell.column.field === i.field && this.commitEdit(e, t, i, s.value);
     }), requestAnimationFrame(() => {
-      r.focus(), r.select();
-    }), r;
+      s.focus(), s.select();
+    }), s;
   }
   startEdit(e, t, i) {
     i.editable && (this._editingCell = { row: e, rowIndex: t, column: i }, this.render());
   }
-  commitEdit(e, t, i, s) {
-    const r = e[i.field];
-    e[i.field] = s, this._editingCell = null;
+  commitEdit(e, t, i, r) {
+    const s = e[i.field];
+    e[i.field] = r, this._editingCell = null;
     const n = {
       row: e,
       column: i,
       rowIndex: t,
-      oldValue: r,
-      value: s
+      oldValue: s,
+      value: r
     };
     this.dispatchEvent(
       new CustomEvent("cell-edit", {
@@ -853,31 +1154,31 @@ class y extends HTMLElement {
       })
     ), this.render();
   }
-  commitControlValue(e, t, i, s, r = !0) {
+  commitControlValue(e, t, i, r, s = !0) {
     const n = e[i.field];
-    e[i.field] = s;
-    const o = {
+    e[i.field] = r;
+    const c = {
       row: e,
       column: i,
       rowIndex: t,
       oldValue: n,
-      value: s
+      value: r
     };
     this.dispatchEvent(
       new CustomEvent("cell-edit", {
-        detail: o,
+        detail: c,
         bubbles: !0,
         composed: !0
       })
-    ), r && this.render();
+    ), s && this.render();
   }
-  dispatchCellAction(e, t, i, s, r) {
+  dispatchCellAction(e, t, i, r, s) {
     const n = {
       row: e,
       column: i,
       rowIndex: t,
-      value: s,
-      action: r
+      value: r,
+      action: s
     };
     this.dispatchEvent(
       new CustomEvent("cell-action", {
@@ -915,14 +1216,14 @@ class y extends HTMLElement {
     if (!this._sortState)
       return this._rows;
     const { field: e, direction: t } = this._sortState, i = t === "asc" ? 1 : -1;
-    return this._rows.map((s, r) => ({ row: s, index: r })).sort((s, r) => {
-      const n = this.compareValues(s.row[e], r.row[e]);
-      return n === 0 ? s.index - r.index : n * i;
-    }).map((s) => s.row);
+    return this._rows.map((r, s) => ({ row: r, index: s })).sort((r, s) => {
+      const n = this.compareValues(r.row[e], s.row[e]);
+      return n === 0 ? r.index - s.index : n * i;
+    }).map((r) => r.row);
   }
   getFormattedValue(e, t, i) {
-    const s = e[t.field];
-    return t.formatter ? t.formatter(s, e, t, i) : s;
+    const r = e[t.field];
+    return t.formatter ? t.formatter(r, e, t, i) : r;
   }
   compareValues(e, t) {
     return e == null && t == null ? 0 : e == null ? 1 : t == null ? -1 : typeof e == "number" && typeof t == "number" ? e - t : String(e).localeCompare(String(t), void 0, {
@@ -974,11 +1275,11 @@ class y extends HTMLElement {
   }
   getTemplateColumns() {
     const e = this._columns.map((t) => this.getColumnTrack(t));
-    return this._checkboxSelection && e.unshift(`${C}px`), e.length > 0 ? e.join(" ") : "minmax(160px, 1fr)";
+    return this._checkboxSelection && e.unshift(`${S}px`), e.length > 0 ? e.join(" ") : "minmax(160px, 1fr)";
   }
   getColumnTrack(e) {
-    const i = this._columnWidths.get(e.field) || this.normalizePositiveNumber(e.width), s = this.normalizePositiveNumber(e.minWidth);
-    return i && s ? `minmax(${s}px, ${Math.max(i, s)}px)` : i ? `${i}px` : s ? `minmax(${s}px, 1fr)` : "minmax(120px, 1fr)";
+    const i = this._columnWidths.get(e.field) || this.normalizePositiveNumber(e.width), r = this.normalizePositiveNumber(e.minWidth);
+    return i && r ? `minmax(${r}px, ${Math.max(i, r)}px)` : i ? `${i}px` : r ? `minmax(${r}px, 1fr)` : "minmax(120px, 1fr)";
   }
   createResizeHandle(e) {
     const t = document.createElement("span");
@@ -986,17 +1287,17 @@ class y extends HTMLElement {
       i.stopPropagation();
     }), t.addEventListener("pointerdown", (i) => {
       i.preventDefault(), i.stopPropagation();
-      const s = this._columnWidths.get(e.field) || e.width || 120;
+      const r = this._columnWidths.get(e.field) || e.width || 120;
       this._resizeState = {
         field: e.field,
         startX: i.clientX,
-        startWidth: s
+        startWidth: r
       }, t.setPointerCapture(i.pointerId);
     }), t.addEventListener("pointermove", (i) => {
       if (!this._resizeState || this._resizeState.field !== e.field)
         return;
-      const s = this.normalizePositiveNumber(e.minWidth) || 48, r = Math.max(s, this._resizeState.startWidth + i.clientX - this._resizeState.startX);
-      this._columnWidths.set(e.field, r), this.render();
+      const r = this.normalizePositiveNumber(e.minWidth) || 48, s = Math.max(r, this._resizeState.startWidth + i.clientX - this._resizeState.startX);
+      this._columnWidths.set(e.field, s), this.render();
     }), t.addEventListener("pointerup", () => {
       this._resizeState = null;
     }), t.addEventListener("pointercancel", () => {
@@ -1005,6 +1306,9 @@ class y extends HTMLElement {
   }
   getTotalPages(e = this.getSortedRows().length) {
     return Math.max(1, Math.ceil(e / this._pageSize));
+  }
+  getVisiblePageItems(e, t) {
+    return t <= 7 ? Array.from({ length: t }, (i, r) => r + 1) : e <= 4 ? [1, 2, 3, 4, 5, "ellipsis", t] : e >= t - 3 ? [1, "ellipsis", t - 4, t - 3, t - 2, t - 1, t] : [1, "ellipsis", e - 1, e, e + 1, "ellipsis", t];
   }
   getClampedPage(e) {
     const t = Math.trunc(this.normalizePositiveNumber(e) || 1);
@@ -1056,15 +1360,15 @@ class y extends HTMLElement {
     return /[",\r\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
   }
   getExportValue(e, t, i) {
-    const s = this.getFormattedValue(e, t, i);
-    return typeof s == "string" ? this.sanitizeExportString(s) : s;
+    const r = this.getFormattedValue(e, t, i);
+    return typeof r == "string" ? this.sanitizeExportString(r) : r;
   }
   sanitizeExportString(e) {
     return /^[=+\-@]/.test(e) ? `'${e}` : e;
   }
   downloadFile(e, t, i) {
-    const s = new Blob([i], { type: t }), r = URL.createObjectURL(s), n = document.createElement("a");
-    n.href = r, n.download = e, n.click(), URL.revokeObjectURL(r);
+    const r = new Blob([i], { type: t }), s = URL.createObjectURL(r), n = document.createElement("a");
+    n.href = s, n.download = e, n.click(), URL.revokeObjectURL(s);
   }
   getContainer() {
     return this.shadow.querySelector(".hc-grid");
@@ -1082,13 +1386,13 @@ class y extends HTMLElement {
     return this.shadow.querySelector(".hc-grid__overlay");
   }
 }
-function S(l = "hc-grid") {
-  globalThis.customElements && (globalThis.customElements.get(l) || globalThis.customElements.define(l, y));
+function E(h = "hc-grid") {
+  globalThis.customElements && (globalThis.customElements.get(h) || globalThis.customElements.define(h, y));
 }
-S();
+E();
 export {
   y as HcGrid,
   y as HcGridElement,
-  S as defineHcGrid,
+  E as defineHcGrid,
   m as escapeHtml
 };

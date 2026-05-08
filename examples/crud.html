@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HC Grid CRUD Example</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        background: #f8fafc;
+        color: #172033;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 16px;
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .query-panel,
+      .crud-panel {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        align-items: end;
+      }
+
+      label {
+        display: grid;
+        gap: 5px;
+        color: #526179;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      input,
+      select {
+        min-height: 36px;
+        border: 1px solid #cfd6e3;
+        border-radius: 8px;
+        padding: 0 10px;
+        background: #ffffff;
+        color: #172033;
+        font: inherit;
+      }
+
+      .crud-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 36px;
+        border: 1px solid #cfd6e3;
+        border-radius: 8px;
+        padding: 0 12px;
+        background: #ffffff;
+        color: #172033;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.primary {
+        border-color: #1e3a8a;
+        background: #1e3a8a;
+        color: #ffffff;
+      }
+
+      button.danger {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #991b1b;
+      }
+
+      .crud-status {
+        min-height: 20px;
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      hc-grid {
+        --hc-grid-radius: 10px;
+        --hc-grid-row-hover-bg: #e8f2ff;
+        --hc-grid-selected-bg: #fff7ed;
+      }
+
+      @media (max-width: 760px) {
+        .crud-panel {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>HC Grid CRUD Example</h1>
+
+      <section class="query-panel" aria-label="Query form">
+        <label>
+          Keyword
+          <input id="queryInput" autocomplete="off" placeholder="Name or email" />
+        </label>
+        <label>
+          Role
+          <select id="queryRoleInput">
+            <option value="">All</option>
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+            <option value="guest">Guest</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select id="queryStatusInput">
+            <option value="">All</option>
+            <option value="active">active</option>
+            <option value="pending">pending</option>
+            <option value="blocked">blocked</option>
+          </select>
+        </label>
+        <div class="crud-actions">
+          <button id="queryButton" class="primary" type="button">Query</button>
+          <button id="clearQueryButton" type="button">Clear Query</button>
+        </div>
+      </section>
+
+      <section class="crud-panel" aria-label="CRUD form">
+        <label>
+          Name
+          <input id="nameInput" autocomplete="off" />
+        </label>
+        <label>
+          Email
+          <input id="emailInput" autocomplete="off" />
+        </label>
+        <label>
+          Role
+          <select id="roleInput">
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+            <option value="guest">Guest</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select id="statusInput">
+            <option value="active">active</option>
+            <option value="pending">pending</option>
+            <option value="blocked">blocked</option>
+          </select>
+        </label>
+      </section>
+
+      <div class="crud-actions">
+        <button id="createButton" class="primary" type="button">Create</button>
+        <button id="readButton" type="button">Read Selected</button>
+        <button id="updateButton" type="button">Update</button>
+        <button id="deleteButton" class="danger" type="button">Delete</button>
+        <button id="resetButton" type="button">Reset Sample</button>
+      </div>
+
+      <div id="statusText" class="crud-status" aria-live="polite"></div>
+
+      <hc-grid id="crudGrid" height="430px" empty-text="No users"></hc-grid>
+    </main>
+
+    <script type="module">
+      import '../dist/hc-grid.es.js';
+
+      await customElements.whenDefined('hc-grid');
+
+      const grid = document.querySelector('#crudGrid');
+      const queryInput = document.querySelector('#queryInput');
+      const queryRoleInput = document.querySelector('#queryRoleInput');
+      const queryStatusInput = document.querySelector('#queryStatusInput');
+      const nameInput = document.querySelector('#nameInput');
+      const emailInput = document.querySelector('#emailInput');
+      const roleInput = document.querySelector('#roleInput');
+      const statusInput = document.querySelector('#statusInput');
+      const queryButton = document.querySelector('#queryButton');
+      const clearQueryButton = document.querySelector('#clearQueryButton');
+      const createButton = document.querySelector('#createButton');
+      const readButton = document.querySelector('#readButton');
+      const updateButton = document.querySelector('#updateButton');
+      const deleteButton = document.querySelector('#deleteButton');
+      const resetButton = document.querySelector('#resetButton');
+      const statusText = document.querySelector('#statusText');
+
+      const seedRows = [
+        { id: 1, name: 'Alice Kim', email: 'alice@test.com', role: 'admin', status: 'active' },
+        { id: 2, name: 'Brian Lee', email: 'brian@test.com', role: 'user', status: 'pending' },
+        { id: 3, name: 'Chloe Park', email: 'chloe@test.com', role: 'guest', status: 'blocked' },
+        { id: 4, name: 'Daniel Choi', email: 'daniel@test.com', role: 'user', status: 'active' },
+        { id: 5, name: 'Eva Han', email: 'eva@test.com', role: 'admin', status: 'active' },
+        { id: 6, name: 'Finn Jung', email: 'finn@test.com', role: 'user', status: 'pending' }
+      ];
+      let allRows = seedRows.map((row) => ({ ...row }));
+      let rows = [...allRows];
+      let selectedId = null;
+      let nextId = Math.max(...allRows.map((row) => row.id)) + 1;
+
+      grid.checkboxSelection = true;
+      grid.pagination = true;
+      grid.pageSize = 5;
+      grid.pageSizeOptions = [5, 10, 20];
+      grid.columns = [
+        { field: 'id', header: 'ID', width: 72, align: 'center', sortable: true },
+        { field: 'name', header: 'Name', width: 160, sortable: true, editable: true },
+        { field: 'email', header: 'Email', minWidth: 220, editable: true },
+        {
+          field: 'role',
+          header: 'Role',
+          width: 140,
+          component: 'select',
+          options: [
+            { label: 'Admin', value: 'admin' },
+            { label: 'User', value: 'user' },
+            { label: 'Guest', value: 'guest' }
+          ]
+        },
+        { field: 'status', header: 'Status', width: 120, component: 'badge' }
+      ];
+
+      const setStatus = (message) => {
+        statusText.textContent = message;
+      };
+
+      const render = () => {
+        grid.setData(rows);
+      };
+
+      const matchesQuery = (row) => {
+        const keyword = queryInput.value.trim().toLowerCase();
+        const role = queryRoleInput.value;
+        const status = queryStatusInput.value;
+        const keywordTarget = [row.id, row.name, row.email, row.role, row.status].join(' ').toLowerCase();
+
+        return (
+          (!keyword || keywordTarget.includes(keyword)) &&
+          (!role || row.role === role) &&
+          (!status || row.status === status)
+        );
+      };
+
+      const queryRows = (message = 'Query completed.') => {
+        rows = allRows.filter(matchesQuery);
+        selectedId = null;
+        grid.clearSelection();
+        grid.setData(rows);
+        grid.page = 1;
+        setFormData(null);
+        setStatus(`${message} ${rows.length} row(s) found.`);
+      };
+
+      const refreshQueryResult = (message, formRow = null) => {
+        rows = allRows.filter(matchesQuery);
+        grid.setData(rows);
+        grid.page = 1;
+
+        if (formRow) {
+          setFormData(formRow);
+        }
+
+        setStatus(`${message} ${rows.length} row(s) displayed.`);
+      };
+
+      const getFormData = () => ({
+        name: nameInput.value.trim(),
+        email: emailInput.value.trim(),
+        role: roleInput.value,
+        status: statusInput.value
+      });
+
+      const setFormData = (row) => {
+        nameInput.value = row?.name ?? '';
+        emailInput.value = row?.email ?? '';
+        roleInput.value = row?.role ?? 'user';
+        statusInput.value = row?.status ?? 'active';
+      };
+
+      const getSelectedRow = () => allRows.find((row) => row.id === selectedId) || grid.getSelectedRow();
+
+      const syncGridEdit = ({ row, column, value }, message) => {
+        const currentRow = allRows.find((item) => item.id === row.id) || row;
+        const updatedRow = { ...currentRow, [column.field]: value };
+        allRows = allRows.map((item) => (item.id === row.id ? updatedRow : item));
+        selectedId = row.id;
+        refreshQueryResult(message, updatedRow);
+      };
+
+      const createRow = () => {
+        const data = getFormData();
+
+        if (!data.name || !data.email) {
+          setStatus('Name and email are required.');
+          return;
+        }
+
+        const row = { id: nextId, ...data };
+        nextId += 1;
+        allRows = [row, ...allRows];
+        selectedId = row.id;
+        refreshQueryResult(`Created #${row.id}.`, row);
+      };
+
+      const readSelectedRow = () => {
+        const row = getSelectedRow();
+
+        if (!row) {
+          setStatus('Select a row first.');
+          return;
+        }
+
+        selectedId = row.id;
+        setFormData(row);
+        setStatus(`Read #${row.id}.`);
+      };
+
+      const updateRow = () => {
+        const row = getSelectedRow();
+
+        if (!row) {
+          setStatus('Select a row first.');
+          return;
+        }
+
+        const data = getFormData();
+        const updatedRow = { ...row, ...data };
+        allRows = allRows.map((item) => (item.id === row.id ? updatedRow : item));
+        selectedId = updatedRow.id;
+        refreshQueryResult(`Updated #${updatedRow.id}.`, updatedRow);
+      };
+
+      const deleteRows = () => {
+        const checkedIds = grid.getCheckedRows().map((row) => row.id);
+        const ids = checkedIds.length > 0 ? checkedIds : selectedId == null ? [] : [selectedId];
+
+        if (ids.length === 0) {
+          setStatus('Check or select rows to delete.');
+          return;
+        }
+
+        allRows = allRows.filter((row) => !ids.includes(row.id));
+        selectedId = null;
+        grid.clearSelection();
+        rows = allRows.filter(matchesQuery);
+        render();
+        grid.page = 1;
+        setFormData(null);
+        setStatus(`Deleted ${ids.length} row(s). ${rows.length} row(s) displayed.`);
+      };
+
+      const resetSample = () => {
+        allRows = seedRows.map((row) => ({ ...row }));
+        rows = [...allRows];
+        selectedId = null;
+        nextId = Math.max(...allRows.map((row) => row.id)) + 1;
+        queryInput.value = '';
+        queryRoleInput.value = '';
+        queryStatusInput.value = '';
+        grid.clearSelection();
+        render();
+        setFormData(null);
+        setStatus('Sample data reset.');
+      };
+
+      grid.addEventListener('row-click', (event) => {
+        selectedId = event.detail.row.id;
+        setFormData(event.detail.row);
+        setStatus(`Selected #${selectedId}.`);
+      });
+
+      grid.addEventListener('cell-edit', (event) => {
+        const { row, column, value } = event.detail;
+        syncGridEdit(event.detail, `Edited ${column.field} on #${row.id}.`);
+      });
+
+      grid.addEventListener('cell-action', (event) => {
+        const { row, column, value } = event.detail;
+        syncGridEdit(event.detail, `Changed ${column.field} on #${row.id}.`);
+      });
+
+      queryButton.addEventListener('click', () => {
+        queryRows('Query completed.');
+      });
+
+      clearQueryButton.addEventListener('click', () => {
+        queryInput.value = '';
+        queryRoleInput.value = '';
+        queryStatusInput.value = '';
+        queryRows('Query cleared.');
+      });
+
+      queryInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          queryRows('Query completed.');
+        }
+      });
+
+      createButton.addEventListener('click', createRow);
+      readButton.addEventListener('click', readSelectedRow);
+      updateButton.addEventListener('click', updateRow);
+      deleteButton.addEventListener('click', deleteRows);
+      resetButton.addEventListener('click', resetSample);
+
+      render();
+      setStatus('Ready.');
+    </script>
+  </body>
+</html>

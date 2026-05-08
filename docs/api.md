@@ -13,8 +13,13 @@
 | `pagination` | `boolean` | Enables client-side pagination and shows the built-in pager. |
 | `page` | `number` | Current page. Starts at `1`. |
 | `pageSize` | `number` | Rows per page. |
+| `pageSizeOptions` | `number[]` | Options shown in the built-in page-size select box. Defaults to `[5, 10, 20, 50, 100]`. |
 | `virtualScroll` | `boolean` | Renders only visible rows. |
 | `rowHeight` | `number` | Virtual row height in pixels. |
+| `viewMode` | `'table' \| 'card'` | Renders rows as table rows or row cards. |
+| `cardTitleField` | `string \| null` | Field used as the card title in card view. |
+| `cardSubtitleField` | `string \| null` | Field used as the card subtitle in card view. |
+| `cardRenderer` | `GridCardRenderer \| null` | Custom card layout renderer. Return a `Node` or safe text. |
 | `selectedRow` | `GridRow \| null` | Currently clicked row. Read-only getter. |
 
 ## Column
@@ -35,6 +40,19 @@ type GridColumn = {
   buttonLabel?: string;
   dropdownLabel?: string;
 };
+```
+
+Card renderer type:
+
+```ts
+type GridCardRenderer = (context: {
+  row: GridRow;
+  rowIndex: number;
+  columns: GridColumn[];
+  selected: boolean;
+  checked: boolean;
+  toggleChecked: (checked?: boolean) => void;
+}) => Node | string | null | undefined;
 ```
 
 `component` renders safe built-in cell controls inside the grid. `select`, `multi-select`, and `dropdown-menu` use `options`.
@@ -58,7 +76,7 @@ type GridColumn = {
 | `setPageSize(pageSize)` | Changes page size and moves to page `1`. |
 | `nextPage()` | Moves to the next page. |
 | `previousPage()` | Moves to the previous page. |
-| `getPageInfo()` | Returns `{ page, pageSize, totalRows, totalPages }`. |
+| `getPageInfo()` | Returns `{ page, pageSize, pageSizeOptions, totalRows, totalPages }`. |
 | `exportCsv(options)` | Returns CSV text. |
 | `downloadCsv(fileName)` | Downloads CSV. |
 | `exportExcel(options)` | Returns Excel-compatible HTML table text. |
@@ -76,17 +94,20 @@ All events are `CustomEvent` instances dispatched with `{ bubbles: true, compose
 | `selection-change` | `{ rows }` |
 | `cell-edit` | `{ row, column, rowIndex, oldValue, value }` |
 | `cell-action` | `{ row, column, rowIndex, value, action }` |
-| `page-change` | `{ page, pageSize, totalRows, totalPages }` |
+| `page-change` | `{ page, pageSize, pageSizeOptions, totalRows, totalPages }` |
 
 ## Pagination Example
 
-When `pagination` is `true`, HC Grid renders a built-in pager below the grid with Previous/Next buttons and page status.
+When `pagination` is `true`, HC Grid renders a built-in pager below the grid with a page-size select box, Previous/Next buttons, and page status.
 
 ```js
 const grid = document.querySelector('hc-grid');
 
 grid.pagination = true;
 grid.pageSize = 2;
+grid.pageSizeOptions = [2, 5, 10, 20];
+grid.viewMode = 'card';
+grid.cardTitleField = 'name';
 
 grid.columns = [
   { field: 'name', header: 'Name', width: 120 },

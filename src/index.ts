@@ -3,7 +3,10 @@ import { HcGrid } from './components/HcGrid';
 export type {
   GridAlign,
   HcGridAlign,
+  GridViewMode,
   GridCellComponent,
+  GridCardRenderContext,
+  GridCardRenderer,
   GridColumn,
   GridFormatter,
   GridOption,

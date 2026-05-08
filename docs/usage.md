@@ -13,7 +13,10 @@
   grid.checkboxSelection = true;
   grid.pagination = true;
   grid.pageSize = 2;
+  grid.pageSizeOptions = [2, 5, 10, 20];
   grid.virtualScroll = true;
+  grid.viewMode = 'table';
+  grid.cardTitleField = 'name';
 
   grid.columns = [
     { field: 'name', header: '이름', width: 120, sortable: true, resizable: true },
@@ -28,7 +31,19 @@
 </script>
 ```
 
-`pagination = true` displays the built-in pager below the grid. Use a small `pageSize` while testing to see page changes immediately.
+`pagination = true` displays the built-in pager below the grid. Use `pageSizeOptions` to control the page-size select box, and use a small `pageSize` while testing to see page changes immediately.
+
+Switch to card view when each row should be displayed as one card:
+
+```js
+grid.viewMode = 'card';
+grid.cardTitleField = 'name';
+grid.cardSubtitleField = 'email';
+```
+
+## CRUD Example
+
+`examples/crud.html` shows query, create, read selected, update, and delete flows using the public grid API.
 
 ## Events
 

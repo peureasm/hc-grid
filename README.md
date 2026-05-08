@@ -55,6 +55,33 @@ type GridColumn = {
 };
 ```
 
+## View Modes
+
+The same `rows` and `columns` can be rendered as a table or as cards.
+
+```js
+grid.viewMode = 'card';
+grid.cardTitleField = 'name';
+grid.cardSubtitleField = 'memo';
+```
+
+- `viewMode`: `'table' | 'card'`
+- `cardTitleField`: field used as the card title
+- `cardSubtitleField`: optional field used as the card subtitle
+- `cardRenderer`: optional function that returns a custom `Node` or safe text for each card
+
+```js
+grid.cardRenderer = ({ row }) => {
+  const card = document.createElement('div');
+  const title = document.createElement('strong');
+  title.textContent = row.name;
+  card.append(title);
+  return card;
+};
+```
+
+`cardRenderer` context also provides `checked` and `toggleChecked()` so custom card layouts can place their own selection checkbox.
+
 ## Data
 
 ```ts
@@ -76,7 +103,7 @@ grid.rows = rows;
 - Checkbox multi-selection: `checkboxSelection = true`
 - Column resize: `resizable: true`
 - Cell formatter: `formatter`
-- Pagination: `pagination`, `page`, `pageSize`
+- Pagination: `pagination`, `page`, `pageSize`, `pageSizeOptions`
 - Virtual scroll: `virtualScroll`, `rowHeight`
 - Cell editing: `editable: true`
 - CSV / Excel export: `exportCsv()`, `downloadCsv()`, `exportExcel()`, `downloadExcel()`
@@ -93,9 +120,9 @@ All events are `CustomEvent` instances with `{ bubbles: true, composed: true }`.
 | `selection-change` | `{ rows }` |
 | `cell-edit` | `{ row, column, rowIndex, oldValue, value }` |
 | `cell-action` | `{ row, column, rowIndex, value, action }` |
-| `page-change` | `{ page, pageSize, totalRows, totalPages }` |
+| `page-change` | `{ page, pageSize, pageSizeOptions, totalRows, totalPages }` |
 
-When `pagination` is `true`, HC Grid renders a built-in pager below the grid with Previous/Next buttons and page status.
+When `pagination` is `true`, HC Grid renders a built-in pager below the grid with a page-size select box, Previous/Next buttons, and page status.
 
 ## Methods
 
@@ -153,6 +180,7 @@ hc-grid {
   grid.checkboxSelection = true;
   grid.pagination = true;
   grid.pageSize = 2;
+  grid.pageSizeOptions = [2, 5, 10, 20];
 
   grid.setColumns([
     { field: 'name', header: '이름', width: 120, sortable: true, resizable: true },
@@ -165,6 +193,10 @@ hc-grid {
   ]);
 </script>
 ```
+
+## CRUD Example
+
+Open `examples/crud.html` to try query, create, read selected, update, and delete flows with `setData()`, `getSelectedRow()`, `getCheckedRows()`, `clearSelection()`, `cell-edit`, and `cell-action`.
 
 ## React
 

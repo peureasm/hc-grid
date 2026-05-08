@@ -18,7 +18,7 @@ Implemented. Set `formatter` on a column to customize display and export values 
 
 ## v0.5 Pagination
 
-Implemented. Use `pagination`, `page`, `pageSize`, `setPage()`, `setPageSize()`, `nextPage()`, `previousPage()`, `getPageInfo()`, and `page-change`.
+Implemented. Use `pagination`, `page`, `pageSize`, `pageSizeOptions`, `setPage()`, `setPageSize()`, `nextPage()`, `previousPage()`, `getPageInfo()`, and `page-change`.
 
 ## v0.6 Virtual Scroll
 

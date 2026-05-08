@@ -1,5 +1,5 @@
 import { HcGrid } from './components/HcGrid';
-export type { GridAlign, HcGridAlign, GridCellComponent, GridColumn, GridFormatter, GridOption, GridRow, GridSortDirection, GridSortState, GridRowClickDetail, GridCellClickDetail, GridSortChangeDetail, GridSelectionChangeDetail, GridCellEditDetail, GridCellActionDetail, GridPageChangeDetail, GridPageInfo, GridExportOptions, HcGridColumn, HcGridRow, HcGridCellClickDetail, HcGridRowClickDetail, HcGridSortChangeDetail, HcGridSelectionChangeDetail, HcGridCellEditDetail, HcGridCellActionDetail, HcGridPageChangeDetail } from './types/grid';
+export type { GridAlign, HcGridAlign, GridViewMode, GridCellComponent, GridCardRenderContext, GridCardRenderer, GridColumn, GridFormatter, GridOption, GridRow, GridSortDirection, GridSortState, GridRowClickDetail, GridCellClickDetail, GridSortChangeDetail, GridSelectionChangeDetail, GridCellEditDetail, GridCellActionDetail, GridPageChangeDetail, GridPageInfo, GridExportOptions, HcGridColumn, HcGridRow, HcGridCellClickDetail, HcGridRowClickDetail, HcGridSortChangeDetail, HcGridSelectionChangeDetail, HcGridCellEditDetail, HcGridCellActionDetail, HcGridPageChangeDetail } from './types/grid';
 export { HcGrid };
 export { HcGrid as HcGridElement };
 export { escapeHtml } from './utils/escapeHtml';
