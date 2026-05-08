@@ -108,6 +108,8 @@ grid.rows = rows;
 - Cell editing: `editable: true`
 - CSV / Excel export: `exportCsv()`, `downloadCsv()`, `exportExcel()`, `downloadExcel()`
 
+See `docs/features.md` for the current feature record.
+
 ## Events
 
 All events are `CustomEvent` instances with `{ bubbles: true, composed: true }`.
