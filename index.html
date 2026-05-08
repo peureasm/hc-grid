@@ -157,6 +157,7 @@
         <button id="downloadExcelButton" class="secondary" type="button">Excel Download</button>
         <button id="uploadExcelButton" class="secondary" type="button">Excel Upload</button>
         <button id="crudSampleButton" class="secondary" type="button">CRUD Sample</button>
+        <button id="firebaseCrudButton" class="secondary" type="button">Firebase CRUD</button>
         <input id="excelUploadInput" class="demo-file-input" type="file" accept=".xls,.html,.csv,text/html,text/csv,application/vnd.ms-excel" />
         <span id="excelStatus" class="demo-status" aria-live="polite"></span>
       </div>
@@ -170,6 +171,7 @@
       const downloadExcelButton = document.querySelector('#downloadExcelButton');
       const uploadExcelButton = document.querySelector('#uploadExcelButton');
       const crudSampleButton = document.querySelector('#crudSampleButton');
+      const firebaseCrudButton = document.querySelector('#firebaseCrudButton');
       const excelUploadInput = document.querySelector('#excelUploadInput');
       const excelStatus = document.querySelector('#excelStatus');
 
@@ -437,6 +439,10 @@
 
       crudSampleButton.addEventListener('click', () => {
         window.location.href = '/examples/crud.html';
+      });
+
+      firebaseCrudButton.addEventListener('click', () => {
+        window.location.href = '/examples/firebase-crud.html';
       });
 
       excelUploadInput.addEventListener('change', async () => {

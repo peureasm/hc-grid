@@ -200,6 +200,20 @@ hc-grid {
 
 Open `examples/crud.html` to try query, create, read selected, update, and delete flows with `setData()`, `getSelectedRow()`, `getCheckedRows()`, `clearSelection()`, `cell-edit`, and `cell-action`.
 
+## Firebase CRUD Example
+
+Run the Vite dev server and open the Firestore CRUD page:
+
+```bash
+npm run dev
+```
+
+```text
+http://localhost:5173/examples/firebase-crud.html
+```
+
+The page uses real Firestore data. It reads Firebase config from `VITE_FIREBASE_*` values in `.env.local` and also lets you paste config JSON in the browser. Use a real collection path, then test `Load`, `Realtime`, `Create`, `Set`, `Update`, `Delete`, row selection, checkbox deletion, and direct cell edit writes.
+
 ## React
 
 ```tsx
