@@ -214,6 +214,61 @@ http://localhost:5173/examples/firebase-crud.html
 
 The page uses real Firestore data. It reads Firebase config from `VITE_FIREBASE_*` values in `.env.local` and also lets you paste config JSON in the browser. Use a real collection path, then test `Load`, `Realtime`, `Create`, `Set`, `Update`, `Delete`, row selection, checkbox deletion, and direct cell edit writes.
 
+## Instant External Access (No Local CLI Required)
+
+If you need an external URL immediately and cannot run anything locally, this repository now supports **GitHub Pages auto-deploy**.
+
+1. Push to `main` (or run the workflow manually in Actions).
+2. Enable Pages in GitHub: **Settings → Pages → Source: GitHub Actions**.
+3. After the workflow succeeds, open the generated URL:
+
+```text
+https://<github-username>.github.io/<repo-name>/examples/firebase-crud.html
+```
+
+Workflow file: `.github/workflows/pages.yml`
+
+## Firebase Hosting (Persistent External Access)
+
+If you cannot run local commands, use GitHub Actions to build and deploy automatically.
+
+### 1) One-time GitHub repository secrets setup
+
+Go to **GitHub → Repository → Settings → Secrets and variables → Actions** and add:
+
+- `FIREBASE_PROJECT_ID`: your Firebase project ID
+- `FIREBASE_SERVICE_ACCOUNT`: full JSON key for a Firebase service account with Hosting deploy permission
+
+How to create service account key:
+
+1. Firebase Console → Project settings → Service accounts
+2. Click **Generate new private key**
+3. Copy the entire JSON and store it in `FIREBASE_SERVICE_ACCOUNT` secret
+
+### 2) Automatic deploy from GitHub
+
+This repository now includes a workflow at `.github/workflows/firebase-hosting.yml` that:
+
+- runs on `push` to `main`
+- can also run manually via `workflow_dispatch`
+- installs deps, runs `build:hosting`, and deploys Hosting (`live` channel)
+
+After a successful run, open:
+
+```text
+https://<your-project-id>.web.app
+```
+
+### 3) Optional local deploy
+
+If local CLI is available later, you can still run:
+
+```bash
+npm run deploy:hosting
+```
+
+If you use Firebase Authentication, add your hosting domain (`<your-project-id>.web.app`) in Firebase Console → Authentication → Settings → Authorized domains.
+
 ## React
 
 ```tsx

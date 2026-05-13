@@ -439,7 +439,24 @@
         }
       }
     </style>
-    <script type="module" src="/src/index.ts"></script>
+    <script type="module">
+      const gridModuleCandidates = ['../dist/hc-grid.es.js', '/dist/hc-grid.es.js', '/src/index.ts'];
+
+      let gridModuleLoaded = false;
+      for (const candidate of gridModuleCandidates) {
+        try {
+          await import(candidate);
+          gridModuleLoaded = true;
+          break;
+        } catch (error) {
+          // Try next candidate
+        }
+      }
+
+      if (!gridModuleLoaded) {
+        throw new Error('HC Grid 모듈을 불러오지 못했습니다.');
+      }
+    </script>
   </head>
   <body>
     <main>
@@ -620,7 +637,7 @@
     </dialog>
 
     <script type="module">
-      import { initializeApp, getApps } from 'firebase/app';
+      import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
       import {
         addDoc,
         collection,
@@ -633,7 +650,7 @@
         query,
         setDoc,
         updateDoc
-      } from 'firebase/firestore';
+      } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
       await customElements.whenDefined('hc-grid');
 
@@ -1836,7 +1853,7 @@
       }
 
       function getEnvConfig() {
-        const env = import.meta.env;
+        const env = import.meta.env ?? {};
         return {
           apiKey: env.VITE_FIREBASE_API_KEY || '',
           authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || '',
