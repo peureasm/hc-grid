@@ -20,7 +20,9 @@
     "dev": "vite",
     "build": "vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy:hosting": "npm run build:hosting && firebase deploy --only hosting",
+    "build:hosting": "npm run build && rm -rf hosting && mkdir -p hosting && cp -r dist hosting/dist && cp -r examples hosting/examples && cp index.html hosting/index.html"
   },
   "keywords": [
     "grid",
