@@ -214,6 +214,32 @@ http://localhost:5173/examples/firebase-crud.html
 
 The page uses real Firestore data. It reads Firebase config from `VITE_FIREBASE_*` values in `.env.local` and also lets you paste config JSON in the browser. Use a real collection path, then test `Load`, `Realtime`, `Create`, `Set`, `Update`, `Delete`, row selection, checkbox deletion, and direct cell edit writes.
 
+## Firebase Hosting (Persistent External Access)
+
+To keep the Firebase-connected demo available from outside your local machine, deploy to Firebase Hosting.
+
+1. Set your Firebase project ID in `.firebaserc`.
+2. Log in and build+deploy:
+
+```bash
+npm run firebase:login
+npm run deploy:hosting
+```
+
+3. Open the generated hosting URL:
+
+```text
+https://<your-project-id>.web.app
+```
+
+For first-time setup only (if hosting was not initialized yet):
+
+```bash
+npm run firebase:init
+```
+
+If you use Firebase Authentication, add your hosting domain (`<your-project-id>.web.app`) in Firebase Console → Authentication → Settings → Authorized domains.
+
 ## React
 
 ```tsx
