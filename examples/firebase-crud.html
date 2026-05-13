@@ -439,7 +439,24 @@
         }
       }
     </style>
-    <script type="module" src="/src/index.ts"></script>
+    <script type="module">
+      const gridModuleCandidates = ['../dist/hc-grid.es.js', '/dist/hc-grid.es.js', '/src/index.ts'];
+
+      let gridModuleLoaded = false;
+      for (const candidate of gridModuleCandidates) {
+        try {
+          await import(candidate);
+          gridModuleLoaded = true;
+          break;
+        } catch (error) {
+          // Try next candidate
+        }
+      }
+
+      if (!gridModuleLoaded) {
+        throw new Error('HC Grid 모듈을 불러오지 못했습니다.');
+      }
+    </script>
   </head>
   <body>
     <main>
