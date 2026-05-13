@@ -1853,7 +1853,7 @@
       }
 
       function getEnvConfig() {
-        const env = import.meta.env;
+        const env = import.meta.env ?? {};
         return {
           apiKey: env.VITE_FIREBASE_API_KEY || '',
           authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || '',
