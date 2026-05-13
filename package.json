@@ -21,8 +21,6 @@
     "build": "vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "firebase:login": "firebase login",
-    "firebase:init": "firebase init hosting",
     "deploy:hosting": "npm run build && firebase deploy --only hosting"
   },
   "keywords": [

@@ -216,26 +216,41 @@ The page uses real Firestore data. It reads Firebase config from `VITE_FIREBASE_
 
 ## Firebase Hosting (Persistent External Access)
 
-To keep the Firebase-connected demo available from outside your local machine, deploy to Firebase Hosting.
+If you cannot run local commands, use GitHub Actions to build and deploy automatically.
 
-1. Set your Firebase project ID in `.firebaserc`.
-2. Log in and build+deploy:
+### 1) One-time GitHub repository secrets setup
 
-```bash
-npm run firebase:login
-npm run deploy:hosting
-```
+Go to **GitHub → Repository → Settings → Secrets and variables → Actions** and add:
 
-3. Open the generated hosting URL:
+- `FIREBASE_PROJECT_ID`: your Firebase project ID
+- `FIREBASE_SERVICE_ACCOUNT`: full JSON key for a Firebase service account with Hosting deploy permission
+
+How to create service account key:
+
+1. Firebase Console → Project settings → Service accounts
+2. Click **Generate new private key**
+3. Copy the entire JSON and store it in `FIREBASE_SERVICE_ACCOUNT` secret
+
+### 2) Automatic deploy from GitHub
+
+This repository now includes a workflow at `.github/workflows/firebase-hosting.yml` that:
+
+- runs on `push` to `main`
+- can also run manually via `workflow_dispatch`
+- installs deps, builds, and deploys Hosting (`live` channel)
+
+After a successful run, open:
 
 ```text
 https://<your-project-id>.web.app
 ```
 
-For first-time setup only (if hosting was not initialized yet):
+### 3) Optional local deploy
+
+If local CLI is available later, you can still run:
 
 ```bash
-npm run firebase:init
+npm run deploy:hosting
 ```
 
 If you use Firebase Authentication, add your hosting domain (`<your-project-id>.web.app`) in Firebase Console → Authentication → Settings → Authorized domains.
